@@ -3,7 +3,7 @@
 '''
 Created on 2015-11-20
 
-@author: zhenkui
+@author: javacardos@gmail.com
 '''
 
 import globalplatform as gp
@@ -90,7 +90,7 @@ def getData_ISO7816_4(context, cardInfo, identifier):
     return gp.GP211_get_data_iso7816_4(context, cardInfo, identifier)
 
 def getSCPDetails(context, cardInfo):
-    return gp.GP211_get_secure_channel_protocol_details(context, cardInfo, )
+    return gp.GP211_get_secure_channel_protocol_details(context, cardInfo)
 
 def getSequenceCounter(context, cardInfo):
     return gp.GP211_get_sequence_counter(context, cardInfo)
