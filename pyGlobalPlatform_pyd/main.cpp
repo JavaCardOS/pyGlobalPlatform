@@ -1,0 +1,121 @@
+#include <Python.h>
+
+#include "gp_functions.h"
+
+
+PyObject *g_gpError;
+
+static PyObject* version(PyObject *self, PyObject *args);
+
+static PyMethodDef GPMethods[] = {
+    { "version", version, METH_VARARGS, "Get version of pyGlobalPlatform." },
+    { "OPGP_enable_trace_mode", OPGP_enable_trace_mode, METH_VARARGS, "Enables the trace mode." },
+
+    { "establishContext", establishContext, METH_VARARGS, "This function establishes a context to connection layer." },
+    { "releaseContext", releaseContext, METH_VARARGS, "This function releases the context to the connection layer established by establishContext()." },
+    { "listReaders", listReaders , METH_VARARGS, "This function returns a list of currently available readers." },
+    { "connectCard", connectCard, METH_VARARGS, "This function connects to a reader." },
+    { "disconnectCard", disconnectCard, METH_VARARGS, "This function disconnects a reader." },
+
+    { "OPGP_select_application", OPGP_select_application, METH_VARARGS, "GlobalPlatform2.1.1: Selects an application on a card by AID."},
+    { "GP211_get_status", pyGP211_get_status, METH_VARARGS, "GlobalPlatform2.1.1: Gets the life cycle status of Applications, the Issuer Security Domains, Security Domains and Executable Load Files and their privileges or information about Executable Modules of the Executable Load Files."},
+    { "GP211_set_status", pyGP211_set_status, METH_VARARGS, "GlobalPlatform2.1.1: Sets the life cycle status of Applications, Security Domains or the Card Manager."},
+    { "GP211_mutual_authentication", pyGP211_mutual_authentication, METH_VARARGS, "GlobalPlatform2.1.1: Mutual authentication."},
+    { "GP211_init_implicit_secure_channel", pyGP211_init_implicit_secure_channel, METH_VARARGS, "GlobalPlatform2.1.1: Inits a Secure Channel implicitly."},
+    { "GP211_close_implicit_secure_channel", pyGP211_close_implicit_secure_channel, METH_VARARGS, "GlobalPlatform2.1.1: Closes a Secure Channel implicitly."},
+    { "GP211_get_data", pyGP211_get_data, METH_VARARGS, "GlobalPlatform2.1.1: Retrieve card data."},
+    { "GP211_get_data_iso7816_4", pyGP211_get_data_iso7816_4, METH_VARARGS, "Retrieve card data according ISO/IEC 7816-4 command not within a secure channel."},
+    { "GP211_get_secure_channel_protocol_details", pyGP211_get_secure_channel_protocol_details, METH_VARARGS, "GlobalPlatform2.1.1: This returns the Secure Channel Protocol and the Secure Channel Protocol implementation."},
+    { "GP211_get_sequence_counter", pyGP211_get_sequence_counter, METH_VARARGS, "GlobalPlatform2.1.1: This returns the current Sequence Counter."},
+    { "GP211_put_data", pyGP211_put_data, METH_VARARGS, "GlobalPlatform2.1.1: Put card data."},
+    { "GP211_pin_change", pyGP211_pin_change, METH_VARARGS, "GlobalPlatform2.1.1: Changes or unblocks the global PIN."},
+    { "GP211_put_3des_key", pyGP211_put_3des_key, METH_VARARGS, "GlobalPlatform2.1.1: replaces a single 3DES key in a key set or adds a new 3DES key."},
+    { "GP211_put_rsa_key", pyGP211_put_rsa_key, METH_VARARGS, "GlobalPlatform2.1.1: replaces a single public RSA key in a key set or adds a new public RSA key."},
+    { "GP211_put_secure_channel_keys", pyGP211_put_secure_channel_keys, METH_VARARGS, "GlobalPlatform2.1.1: replaces or adds a secure channel key set consisting of S-ENC, S-MAC and DEK."},
+    { "GP211_delete_key", pyGP211_delete_key, METH_VARARGS, "GlobalPlatform2.1.1: deletes a key or multiple keys."},
+    { "GP211_get_key_information_templates", pyGP211_get_key_information_templates, METH_VARARGS, "GlobalPlatform2.1.1: Retrieves key information of keys on the card."},
+    { "GP211_delete_application", pyGP211_delete_application, METH_VARARGS, "GlobalPlatform2.1.1: Deletes a Executable Load File or an application."},
+    { "GP211_install_for_load", pyGP211_install_for_load, METH_VARARGS, "GlobalPlatform2.1.1: Prepares the card for loading an application."},
+    { "GP211_get_extradition_token_signature_data", pyGP211_get_extradition_token_signature_data, METH_VARARGS, "GlobalPlatform2.1.1: Function to retrieve the data to sign by the Card Issuer in an Extradition Token."},
+    { "GP211_get_load_token_signature_data", pyGP211_get_load_token_signature_data, METH_VARARGS, "GlobalPlatform2.1.1: Function to retrieve the data to sign by the Card Issuer in a Load Token."},
+    { "GP211_get_install_token_signature_data", pyGP211_get_install_token_signature_data, METH_VARARGS, "GlobalPlatform2.1.1: Function to retrieve the data to sign by the Card Issuer in an Install Token."},
+    { "GP211_calculate_load_token", pyGP211_calculate_load_token, METH_VARARGS, "GlobalPlatform2.1.1: Calculates a Load Token using PKCS#1."},
+    { "GP211_calculate_install_token", pyGP211_calculate_install_token, METH_VARARGS, "GlobalPlatform2.1.1: Calculates an Install Token using PKCS#1."},
+    { "GP211_calculate_load_file_data_block_hash", pyGP211_calculate_load_file_data_block_hash, METH_VARARGS, "GlobalPlatform2.1.1: Calculates a Load File Data Block Hash."},
+    { "GP211_load", pyGP211_load, METH_VARARGS, "GlobalPlatform2.1.1: Loads a Executable Load File ,"},
+    { "GP211_load_from_buffer", pyGP211_load_from_buffer, METH_VARARGS, "GlobalPlatform2.1.1: Loads a Executable Load File ,"},
+    { "GP211_install_for_install", pyGP211_install_for_install, METH_VARARGS, "GlobalPlatform2.1.1: Installs an application on the card."},
+    { "GP211_install_for_make_selectable", pyGP211_install_for_make_selectable, METH_VARARGS, "GlobalPlatform2.1.1: Makes an installed application selectable."},
+    { "GP211_install_for_install_and_make_selectable", pyGP211_install_for_install_and_make_selectable, METH_VARARGS, "GlobalPlatform2.1.1: Installs and makes an installed application selectable."},
+    { "GP211_install_for_personalization", pyGP211_install_for_personalization, METH_VARARGS, "GlobalPlatform2.1.1: Informs a Security Domain that a associated application will retrieve personalization data."},
+    { "GP211_install_for_extradition", pyGP211_install_for_extradition, METH_VARARGS, "GlobalPlatform2.1.1: Associates an application with another Security Domain."},
+    { "GP211_put_delegated_management_keys", pyGP211_put_delegated_management_keys, METH_VARARGS, "GlobalPlatform2.1.1: Adds a key set for Delegated Management."},
+    { "GP211_send_APDU", pyGP211_send_APDU, METH_VARARGS, "Sends an application protocol data unit."},
+    { "GP211_calculate_3des_DAP", pyGP211_calculate_3des_DAP, METH_VARARGS, "GlobalPlatform2.1.1: Calculates a Load File Data Block Signature using 3DES."},
+    { "GP211_calculate_rsa_DAP", pyGP211_calculate_rsa_DAP, METH_VARARGS, "GlobalPlatform2.1.1: Calculates a Load File Data Block Signature using SHA-1 and PKCS#1 ,"},
+    { "GP211_validate_delete_receipt", pyGP211_validate_delete_receipt, METH_VARARGS, "GlobalPlatform2.1.1: Validates a Load Receipt."},
+    { "GP211_validate_install_receipt", pyGP211_validate_install_receipt, METH_VARARGS, "GlobalPlatform2.1.1: Validates an Install Receipt."},
+    { "GP211_validate_load_receipt", pyGP211_validate_load_receipt, METH_VARARGS, "GlobalPlatform2.1.1: Validates a Load Receipt."},
+    { "GP211_validate_extradition_receipt", pyGP211_validate_extradition_receipt, METH_VARARGS, "GlobalPlatform2.1.1: Validates an Extradition Receipt."},
+    { "OPGP_manage_channel", OPGP_manage_channel, METH_VARARGS, "ISO 7816-4 / GlobalPlatform2.1.1: Opens or closes a Logical Channel."},
+    { "OPGP_select_channel", OPGP_select_channel, METH_VARARGS, "ISO 7816-4 / GlobalPlatform2.1.1: If multiple Logical Channels are open or a new Logical Channel is opened with select_application,"},
+    { "GP211_store_data", pyGP211_store_data, METH_VARARGS, "GlobalPlatform2.1.1: The STORE DATA command is used to transfer data to an Application or the Security Domain processing the command."},
+    { "OP201_get_status", OP201_get_status, METH_VARARGS, "Open Platform: Gets the life cycle status of Applications, the Card Manager and Executable Load Files and their privileges."},
+    { "OP201_set_status", OP201_set_status, METH_VARARGS, "Open Platform: Sets the life cycle status of Applications, Security Domains or the Card Manager."},
+    { "OP201_mutual_authentication", OP201_mutual_authentication, METH_VARARGS, "Open Platform: Mutual authentication."},
+    { "OP201_get_data", OP201_get_data, METH_VARARGS, "Open Platform: Retrieve card data."},
+    { "OP201_put_data", OP201_put_data, METH_VARARGS, "Open Platform: Put card data."},
+    { "OP201_pin_change", OP201_pin_change, METH_VARARGS, "Open Platform: Changes or unblocks the global PIN."},
+    { "OP201_put_3desKey", OP201_put_3desKey, METH_VARARGS, "Open Platform: replaces a single 3DES key in a key set or adds a new 3DES key."},
+    { "OP201_put_rsa_key", OP201_put_rsa_key, METH_VARARGS, "Open Platform: replaces a single public RSA key in a key set or adds a new public RSA key."},
+    { "OP201_put_secure_channel_keys", OP201_put_secure_channel_keys, METH_VARARGS, "Open Platform: replaces or adds a secure channel key set consisting of encryption key, MAC key and key encryption."},
+    { "OP201_delete_key", OP201_delete_key, METH_VARARGS, "Open Platform: deletes a key or multiple keys."},
+    { "OP201_get_key_information_templates", OP201_get_key_information_templates, METH_VARARGS, "Open Platform: Retrieves key information of keys on the card."},
+    { "OP201_delete_application", OP201_delete_application, METH_VARARGS, "Open Platform: Deletes a Executable Load File or an application."},
+    { "OP201_install_for_load", OP201_install_for_load, METH_VARARGS, "Open Platform: Prepares the card for loading an application."},
+    { "OP201_get_load_token_signature_data", OP201_get_load_token_signature_data, METH_VARARGS, "Open Platform: Function to retrieve the data to sign by the Card Issuer in a Load Token."},
+    { "OP201_get_install_token_signature_data", OP201_get_install_token_signature_data, METH_VARARGS, "Open Platform: Function to retrieve the data to sign by the Card Issuer in an Install Token."},
+    { "OP201_calculate_load_token", OP201_calculate_load_token, METH_VARARGS, "Open Platform: Calculates a Load Token using PKCS#1."},
+    { "OP201_calculate_install_token", OP201_calculate_install_token, METH_VARARGS, "Open Platform: Calculates an Install Token using PKCS#1."},
+    { "OP201_calculate_load_file_DAP", OP201_calculate_load_file_DAP, METH_VARARGS, "Open Platform: Calculates a Load File DAP."},
+    { "OP201_load", OP201_load, METH_VARARGS, "Open Platform: Loads a Executable Load File ,"},
+    { "OP201_load_from_buffer", OP201_load_from_buffer, METH_VARARGS, "Open Platform: Loads a Executable Load File ,"},
+    { "OP201_install_for_install", OP201_install_for_install, METH_VARARGS, "Open Platform: Installs an application on the card."},
+    { "OP201_install_for_make_selectable", OP201_install_for_make_selectable, METH_VARARGS, "Open Platform: Makes an installed application selectable."},
+    { "OP201_install_for_install_and_make_selectable", OP201_install_for_install_and_make_selectable, METH_VARARGS, "Open Platform: Installs and makes an installed application selectable."},
+    { "OP201_put_delegated_management_keys", OP201_put_delegated_management_keys, METH_VARARGS, "Open Platform: Adds a key set for Delegated Management."},
+    { "OP201_send_APDU", OP201_send_APDU, METH_VARARGS, "Sends an application protocol data unit."},
+    { "OP201_calculate_3des_DAP", OP201_calculate_3des_DAP, METH_VARARGS, "Open Platform: Calculates a Load File Data Block DAP using 3DES."},
+    { "OP201_calculate_rsa_DAP", OP201_calculate_rsa_DAP, METH_VARARGS, "Open Platform: Calculates a Load File Data Block DAP using SHA-1 and PKCS#1 ,"},
+    { "OP201_validate_delete_receipt", OP201_validate_delete_receipt, METH_VARARGS, "Open Platform: Validates a Load Receipt."},
+    { "OP201_validate_install_receipt", OP201_validate_install_receipt, METH_VARARGS, "Open Platform: Validates an Install Receipt."},
+    { "OP201_validate_load_receipt", OP201_validate_load_receipt, METH_VARARGS, "Open Platform: Validates a Load Receipt."},
+    { "GP211_begin_R_MAC", pyGP211_begin_R_MAC, METH_VARARGS, "Initiates a R-MAC session."},
+    { "GP211_end_R_MAC", pyGP211_end_R_MAC, METH_VARARGS, "Terminates a R-MAC session."},
+    { "OPGP_read_executable_load_file_parameters", OPGP_read_executable_load_file_parameters, METH_VARARGS, "Reads the parameters of an Executable Load File."},
+    { "OPGP_VISA2_derive_keys", OPGP_VISA2_derive_keys, METH_VARARGS, "Derives the static keys from a master key according the VISA 2 key derivation scheme."},
+    { "OPGP_cap_to_ijc", OPGP_cap_to_ijc, METH_VARARGS, "Converts a CAP file to an IJC file ,"},
+    { "OPGP_extract_cap_file", OPGP_extract_cap_file, METH_VARARGS, "Extracts a CAP file into a buffer."},
+    { "OPGP_read_executable_load_file_parameters_from_buffer", OPGP_read_executable_load_file_parameters_from_buffer, METH_VARARGS, "Receives Executable Load File as a buffer instead of a FILE."},
+    { "OPGP_EMV_CPS11_derive_keys", OPGP_EMV_CPS11_derive_keys, METH_VARARGS, "Derives the static keys from a master key according the EMV CPS 1.1 key derivation scheme."},
+
+    { NULL, NULL, 0, NULL }        /* Sentinel */
+};
+
+PyMODINIT_FUNC initglobalplatform(void)
+{
+    PyObject *m;
+
+    m = Py_InitModule("globalplatform", GPMethods);
+    if (m == NULL)
+        return;
+
+    g_gpError = PyErr_NewException("globalplatform.error", NULL, NULL);
+    Py_INCREF(g_gpError);
+    PyModule_AddObject(m, "error", g_gpError);
+}
+
+static PyObject* version(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("s", "1.0.0");
+}

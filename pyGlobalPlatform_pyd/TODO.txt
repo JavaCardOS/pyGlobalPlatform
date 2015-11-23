@@ -1,0 +1,11 @@
+9:51 2015/11/23
+// TODO: Check each parameter type; []
+// TODO: Check if context/cardInfo/securityInfo is not established; []
+// TODO: Add functions's doc;
+
+16:30 2015/11/20
+// TODO: Check parameter index; [Done]
+// TODO: Data length can be got from string size; [Done]
+// TODO: Return data as a string; [Done]
+// TODO: Check parameter count; [Done]
+// TODO: Code for exception(s); [Done]
