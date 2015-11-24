@@ -1,5 +1,5 @@
 # pyGlobalPlatform
-pyGlobalPlatform is a open source python library of globalplatform client library. It is depend on the [GlobalPlatform](http://sourceforge.net/projects/globalplatform/) project. Using this library, you can use all features of GlobalPlatform project use Python programming language.
+pyGlobalPlatform is a open source python globalplatform client library. It is depend on the [GlobalPlatform](http://sourceforge.net/projects/globalplatform/) project. Using this library, you can use all features of GlobalPlatform project use Python programming language.
 
 # Dependencies
 [GlobalPlatform](http://sourceforge.net/projects/globalplatform/)
