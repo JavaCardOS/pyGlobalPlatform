@@ -6,6 +6,7 @@ pyGlobalPlatform is a open source python library of globalplatform client librar
 ## Files used when building
 - globalplatform.h : header file of opensource globalplatform library.
 - globalplatform.lib: the library file of opensource globalplatform library.
+
 ## Files used when run
 - globalplatform.dll
 	The dll of opensource globalplatform library.
