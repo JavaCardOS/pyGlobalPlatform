@@ -18,6 +18,9 @@ pyGlobalPlatform is a open source python library of globalplatform client librar
     1. The dll files shall be in the BIN path when globalplatform.dll functions is called.
     2. You can download the header/library files and dll files from http://javacardos.com/javacardforum/viewforum.php?f=41.
 
+# Usage:
+![Usage](pyGlobalPlatform-usage.png)
+
 # Structure
 ![Structure](pyGlobalPlatform.png)
 
