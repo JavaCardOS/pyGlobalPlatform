@@ -21,7 +21,7 @@ pyGlobalPlatform is a open source python library of globalplatform client librar
 # Usage:
 ![Usage](pyGlobalPlatform-usage.png)
 
-	For more api usage examples, please visit [pyGlobalPlatform Developer's Guide](http://javacardos.com/javacardforum/viewforum.php?f=41)
+For more api usage examples, please visit [pyGlobalPlatform Developer's Guide](http://javacardos.com/javacardforum/viewforum.php?f=41)
 
 # Structure
 ![Structure](pyGlobalPlatform.png)
