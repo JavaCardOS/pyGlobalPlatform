@@ -162,7 +162,7 @@ PyObject * OPGP_select_application(PyObject *self, PyObject *args)
 
     OPGP_CARD_CONTEXT stCardContext = *(OPGP_CARD_CONTEXT *)PyString_AsString(PyTuple_GetItem(args, 0));
     OPGP_CARD_INFO stCardInfo = *(OPGP_CARD_INFO *)PyString_AsString(PyTuple_GetItem(args, 1));
-    PyObject * pobjAID = PyTuple_GetItem(args, 3);
+    PyObject * pobjAID = PyTuple_GetItem(args, 2);
 
     PBYTE pbAID = (PBYTE)PyString_AsString(pobjAID);
     DWORD dwAIDLength = (DWORD)PyString_GET_SIZE(pobjAID);
