@@ -15,7 +15,7 @@ extern PyObject *g_gpError;
 /* Macro for checking function arguments count; */
 #define CHECK_FUNCTION_ARGUMENTS_COUNT(c) {\
     DWORD dwArgumentCount = PyTuple_GET_SIZE(args);\
-    if (dwArgumentCount < c) {\
+    if (dwArgumentCount != c) {\
     PyErr_Format(PyExc_TypeError, "%s() takes %d arguments. (%d given)", __FUNCTION__, c, dwArgumentCount);\
     return NULL;\
     }}
@@ -519,20 +519,21 @@ PyObject * pyGP211_get_key_information_templates(PyObject *self, PyObject *args)
 
 PyObject * pyGP211_delete_application(PyObject *self, PyObject *args)
 {
-    CHECK_FUNCTION_ARGUMENTS_COUNT(3);
+    CHECK_FUNCTION_ARGUMENTS_COUNT(4);
 
     OPGP_CARD_CONTEXT stCardContext = *(OPGP_CARD_CONTEXT *)PyString_AsString(PyTuple_GetItem(args, 0));
     OPGP_CARD_INFO stCardInfo = *(OPGP_CARD_INFO *)PyString_AsString(PyTuple_GetItem(args, 1));
     GP211_SECURITY_INFO stGP211SecurityInfo = *(GP211_SECURITY_INFO *)PyString_AsString(PyTuple_GetItem(args, 2));
+    PyObject *pobjAIDs = PyTuple_GetItem(args, 3);
 
-    DWORD dwAIDCount = PyTuple_GET_SIZE(args) - 3;
+    DWORD dwAIDCount = PyTuple_GET_SIZE(pobjAIDs);
     if (dwAIDCount == 0) {
         return PyLong_FromLong(0);
     }
 
     OPGP_AID staAIDs[NUM_APPLICATIONS];
     for (DWORD dw = 0; dw < dwAIDCount; ++dw) {
-        PyObject *pobjAID = PyTuple_GetItem(args, 3 + dw);
+        PyObject *pobjAID = PyTuple_GetItem(pobjAIDs, dw);
         BYTE bAidLength = (BYTE)PyString_GET_SIZE(pobjAID);
         staAIDs[dw].AIDLength = bAidLength;
         memcpy_s(staAIDs[dw].AID, 16, PyString_AsString(pobjAID), bAidLength);
