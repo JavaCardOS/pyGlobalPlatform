@@ -22,9 +22,9 @@ extern PyObject *g_gpError;
 
 /* Macro for checking gp call result; */
 #define CHECK_GP_CALL_RESULT(r) {\
-    if (r.errorCode != OPGP_ERROR_STATUS_SUCCESS) {\
+    if (r.errorStatus != OPGP_ERROR_STATUS_SUCCESS) {\
         _RaiseError(PyExc_Exception, __FUNCTION__, (const wchar_t *)r.errorMessage);\
-        return PyLong_FromLong(-1);\
+        return NULL;\
     }\
 }
 
@@ -988,7 +988,11 @@ PyObject * pyGP211_send_APDU(PyObject *self, PyObject *args)
 
     OPGP_CARD_CONTEXT stCardContext = *(OPGP_CARD_CONTEXT *)PyString_AsString(PyTuple_GetItem(args, 0));
     OPGP_CARD_INFO stCardInfo = *(OPGP_CARD_INFO *)PyString_AsString(PyTuple_GetItem(args, 1));
-    GP211_SECURITY_INFO stGP211SecurityInfo = *(GP211_SECURITY_INFO *)PyString_AsString(PyTuple_GetItem(args, 2));
+    PyObject *pobjSecurityInfo = PyTuple_GetItem(args, 2);
+    GP211_SECURITY_INFO *pstGP211SecurityInfo = NULL;
+    if (pobjSecurityInfo != Py_None) {
+        pstGP211SecurityInfo = (GP211_SECURITY_INFO *)PyString_AsString(pobjSecurityInfo);
+    }
     PyObject * pobjCApdu = PyTuple_GetItem(args, 3);
 
     byte* pbCApdu = (byte *)PyString_AsString(pobjCApdu);
@@ -996,7 +1000,7 @@ PyObject * pyGP211_send_APDU(PyObject *self, PyObject *args)
     BYTE baRApdu[0x100] = { 0 };
     DWORD dwRApduLength = sizeof(baRApdu) / sizeof(BYTE);
 
-    OPGP_ERROR_STATUS errorStatus = GP211_send_APDU(stCardContext, stCardInfo, &stGP211SecurityInfo, pbCApdu, dwCApduLength, baRApdu, &dwRApduLength);
+    OPGP_ERROR_STATUS errorStatus = GP211_send_APDU(stCardContext, stCardInfo, pstGP211SecurityInfo, pbCApdu, dwCApduLength, baRApdu, &dwRApduLength);
     CHECK_GP_CALL_RESULT(errorStatus);
 
     return PyString_FromStringAndSize((const char *)baRApdu, dwRApduLength);
