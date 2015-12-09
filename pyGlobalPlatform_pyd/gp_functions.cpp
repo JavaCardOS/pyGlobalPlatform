@@ -263,7 +263,11 @@ PyObject * pyGP211_mutual_authentication(PyObject *self, PyObject *args)
 
     OPGP_CARD_CONTEXT stCardContext = *(OPGP_CARD_CONTEXT *)PyString_AsString(PyTuple_GetItem(args, 0));
     OPGP_CARD_INFO stCardInfo = *(OPGP_CARD_INFO *)PyString_AsString(PyTuple_GetItem(args, 1));
-    PBYTE pbBaseKey = (PBYTE)PyString_AsString(PyTuple_GetItem(args, 2));
+    PBYTE pbBaseKey = NULL;
+    PyObject *pobjBaseKey = PyTuple_GetItem(args, 2);
+    if (pobjBaseKey != Py_None) {
+        pbBaseKey = (PBYTE)PyString_AsString(pobjBaseKey);
+    }
     PBYTE pbS_ENC = (PBYTE)PyString_AsString(PyTuple_GetItem(args, 3));
     PBYTE pbS_MAC = (PBYTE)PyString_AsString(PyTuple_GetItem(args, 4));
     PBYTE pbDEK = (PBYTE)PyString_AsString(PyTuple_GetItem(args, 5));
@@ -473,7 +477,11 @@ PyObject * pyGP211_put_secure_channel_keys(PyObject *self, PyObject *args)
     GP211_SECURITY_INFO stGP211SecurityInfo = *(GP211_SECURITY_INFO *)PyString_AsString(PyTuple_GetItem(args, 2));
     BYTE bKeySetVersion = (BYTE)PyLong_AsLong(PyTuple_GetItem(args, 3));
     BYTE bNewKeySetVersion = (BYTE)PyLong_AsLong(PyTuple_GetItem(args, 4));
-    PBYTE pbNewBaseKey = (PBYTE)PyString_AsString(PyTuple_GetItem(args, 5));
+    PBYTE pbNewBaseKey = NULL;
+    PyObject *pobjNewBaseKey = PyTuple_GetItem(args, 5);
+    if (pobjNewBaseKey != Py_None) {
+        pbNewBaseKey = (PBYTE)PyString_AsString(pobjNewBaseKey);
+    }
     PBYTE pbNewS_ENC = (PBYTE)PyString_AsString(PyTuple_GetItem(args, 6));
     PBYTE pbNewS_MAC = (PBYTE)PyString_AsString(PyTuple_GetItem(args, 7));
     PBYTE pbNewDEK = (PBYTE)PyString_AsString(PyTuple_GetItem(args, 8));
@@ -506,12 +514,16 @@ PyObject * pyGP211_get_key_information_templates(PyObject *self, PyObject *args)
 
     OPGP_CARD_CONTEXT stCardContext = *(OPGP_CARD_CONTEXT *)PyString_AsString(PyTuple_GetItem(args, 0));
     OPGP_CARD_INFO stCardInfo = *(OPGP_CARD_INFO *)PyString_AsString(PyTuple_GetItem(args, 1));
-    GP211_SECURITY_INFO stGP211SecurityInfo = *(GP211_SECURITY_INFO *)PyString_AsString(PyTuple_GetItem(args, 2));
+    GP211_SECURITY_INFO *pstGP211SecurityInfo = NULL;
+    PyObject *pobjSecurityInfo = PyTuple_GetItem(args, 2);
+    if (pobjSecurityInfo != Py_None) {
+        pstGP211SecurityInfo = (GP211_SECURITY_INFO *)PyString_AsString(pobjSecurityInfo);
+    }
     BYTE  bKeyInformationTemplate = (BYTE)PyLong_AsLong(PyTuple_GetItem(args, 3));
     GP211_KEY_INFORMATION pstKeyInformation[0x100];
     DWORD dwKeyInformationCount = sizeof(pstKeyInformation) / sizeof(GP211_KEY_INFORMATION);
 
-    OPGP_ERROR_STATUS errorStatus = GP211_get_key_information_templates(stCardContext, stCardInfo, &stGP211SecurityInfo, bKeyInformationTemplate, pstKeyInformation, &dwKeyInformationCount);
+    OPGP_ERROR_STATUS errorStatus = GP211_get_key_information_templates(stCardContext, stCardInfo, pstGP211SecurityInfo, bKeyInformationTemplate, pstKeyInformation, &dwKeyInformationCount);
     CHECK_GP_CALL_RESULT(errorStatus);
 
     return PyString_FromStringAndSize((const char *)&pstKeyInformation, dwKeyInformationCount * sizeof(GP211_KEY_INFORMATION));
