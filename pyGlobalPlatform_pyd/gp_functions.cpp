@@ -209,21 +209,21 @@ PyObject * pyGP211_get_status(PyObject *self, PyObject *args)
         return pobjRet;
     } else if ((bCardElement & 0x10) != 0) {
         PyObject * pobjExecuableModulesData = PyTuple_New(dwDataCount);
-        for (DWORD d = 0; d < dwDataCount; ++d) {
+        for (DWORD dwDataIndex = 0; dwDataIndex < dwDataCount; ++dwDataIndex) {
             PyObject * pobjOneExecuableData = PyDict_New();
-            GP211_EXECUTABLE_MODULES_DATA* pstOneExecuableModulesData = &astExecutableData[d];
+            GP211_EXECUTABLE_MODULES_DATA* pstOneExecuableModulesData = &astExecutableData[dwDataIndex];
             PyDict_SetItem(pobjOneExecuableData, PyString_FromString("aid"), PyString_FromStringAndSize((const char *)pstOneExecuableModulesData->AID, pstOneExecuableModulesData->AIDLength));
             PyDict_SetItem(pobjOneExecuableData, PyString_FromString("lifeCycleState"), PyLong_FromLong(pstOneExecuableModulesData->lifeCycleState));
 
             BYTE bNumExecutableModules = pstOneExecuableModulesData->numExecutableModules;
             PyObject * pobjExecutableModuleData = PyTuple_New(bNumExecutableModules);
-            for (BYTE b = 0; b < bNumExecutableModules; ++b) {
-                OPGP_AID* pstExecutableModuleAID = &pstOneExecuableModulesData->executableModules[d];
-                PyTuple_SetItem(pobjExecutableModuleData, b, PyString_FromStringAndSize((const char *)pstExecutableModuleAID->AID, pstExecutableModuleAID->AIDLength));
+            for (BYTE bExecutableModuleIndex = 0; bExecutableModuleIndex < bNumExecutableModules; ++bExecutableModuleIndex) {
+                OPGP_AID* pstExecutableModuleAID = &pstOneExecuableModulesData->executableModules[bExecutableModuleIndex];
+                PyTuple_SetItem(pobjExecutableModuleData, bExecutableModuleIndex, PyString_FromStringAndSize((const char *)pstExecutableModuleAID->AID, pstExecutableModuleAID->AIDLength));
             }
             PyDict_SetItem(pobjOneExecuableData, PyString_FromString("executableModules"), pobjExecutableModuleData);
 
-            PyTuple_SetItem(pobjExecuableModulesData, d, pobjOneExecuableData);
+            PyTuple_SetItem(pobjExecuableModulesData, dwDataIndex, pobjOneExecuableData);
         }
         PyObject *pobjRet = PyTuple_New(2);
         PyTuple_SetItem(pobjRet, 0, PyTuple_New(0));
