@@ -117,5 +117,5 @@ PyMODINIT_FUNC initglobalplatform(void)
 
 static PyObject* version(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("s", "1.0.0");
+    return Py_BuildValue("s", "1.1");
 }
