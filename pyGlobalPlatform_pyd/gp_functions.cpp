@@ -1,6 +1,8 @@
 #include "gp_functions.h"
 
 #ifdef WIN32
+#define UNICODE
+#define _UNICODE
 #include <Windows.h>
 #include <tchar.h>
 #else
@@ -1411,7 +1413,7 @@ PyObject * pyOPGP_read_executable_load_file_parameters(PyObject *self, PyObject 
 
     PyObject *pobjLoadFileName = PyTuple_GetItem(args, 0);
     TCHAR *ptcLoadFileName = NULL;
-#if UNICODE
+#ifdef UNICODE
     if (PyUnicode_Check(pobjLoadFileName)) {
         ptcLoadFileName = PyUnicode_AsUnicode(pobjLoadFileName);
     } else {
