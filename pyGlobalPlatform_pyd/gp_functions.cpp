@@ -1,11 +1,15 @@
 #include "gp_functions.h"
 
-//#include <windows.h>
-#include "globalplatform/globalplatform.h"
-#include "globalplatform/connectionplugin.h"
-//#include <tchar.h>
+#ifdef WIN32
+#include <Windows.h>
+#include <tchar.h>
+#else
 #include <stdlib.h>
 #include <wchar.h>
+#endif
+
+#include "globalplatform/globalplatform.h"
+#include "globalplatform/connectionplugin.h"
 
 
 /* Macro to get array element count; */
@@ -15,7 +19,7 @@
 #define CHECK_FUNCTION_ARGUMENTS_COUNT(c) {\
     unsigned int uiArgumentCount = PyTuple_GET_SIZE(args);\
     if (uiArgumentCount != c) {\
-        PyErr_Format(PyExc_TypeError, _T("%s() takes %u arguments. (%u given)"), __FUNCTION__, c, uiArgumentCount);\
+        PyErr_Format(PyExc_TypeError, "%s() takes %u arguments. (%u given)", __FUNCTION__, c, uiArgumentCount);\
         return NULL;\
     }\
 }
@@ -29,21 +33,16 @@
 }
 
 /* Function to raise an error; */
-//static void _RaiseError(PyObject *pobjError, const char *pcFunctionName, const wchar_t *pwcMessage)
-//{
-//    char pcMessage[0x400] = { 0 };
-//    size_t szCharConverted = 0;
-//    wcstombs_s(&szCharConverted, pcMessage, pwcMessage, wcslen(pwcMessage));
-//
-//    char pcMessage2[0x400] = { 0 };
-//    sprintf(pcMessage2, "%s(): %s", pcFunctionName, pcMessage);
-//    PyErr_SetString(pobjError, pcMessage2);
-//}
-static void _RaiseError(PyObject *pobjError, const char *pcFunctionName, const char *pcMessage)
+static void _RaiseError(PyObject *pobjError, const char *pcFunctionName, const TCHAR *ptcMessage)
 {
+#ifdef UNICODE
+    char pcMessage[0x400] = { 0 };
+    sprintf(pcMessage, "%s(): %S", pcFunctionName, ptcMessage);
     PyErr_SetString(pobjError, pcMessage);
+#else
+    PyErr_SetString(pobjError, ptcMessage);
+#endif
 }
-
 
 PyObject * establishContext(PyObject *self, PyObject *args)
 {
@@ -53,10 +52,13 @@ PyObject * establishContext(PyObject *self, PyObject *args)
     memset(&stCardContext.connectionFunctions, 0x00, sizeof(stCardContext.connectionFunctions));
     stCardContext.libraryHandle = NULL;
     stCardContext.librarySpecific = NULL;
+#ifdef WIN32
+    _tcsncpy_s(stCardContext.libraryName, ARRAY_SIZE(stCardContext.libraryName), _T("gppcscconnectionplugin"), _tcslen(_T("gppcscconnectionplugin")));
+    _tcsncpy_s(stCardContext.libraryVersion, ARRAY_SIZE(stCardContext.libraryVersion), _T("1"), _tcslen( _T("1")));
+#else
     strncpy(stCardContext.libraryName, _T("gppcscconnectionplugin"), _tcslen(_T("gppcscconnectionplugin")));
     strncpy(stCardContext.libraryVersion, _T("1"), _tcslen( _T("1")));
-//    _tcsncpy_s(stCardContext.libraryName, ARRAY_SIZE(stCardContext.libraryName), _T("gppcscconnectionplugin"), _tcslen(_T("gppcscconnectionplugin")));
-//    _tcsncpy_s(stCardContext.libraryVersion, ARRAY_SIZE(stCardContext.libraryVersion), _T("1"), _tcslen( _T("1")));
+#endif
     OPGP_ERROR_STATUS errorStatus = OPGP_establish_context(&stCardContext);
     CHECK_GP_CALL_RESULT(errorStatus);
 
