@@ -1,12 +1,11 @@
 #include "gp_functions.h"
 
-#include <windows.h>
+//#include <windows.h>
 #include "globalplatform/globalplatform.h"
 #include "globalplatform/connectionplugin.h"
-#include <tchar.h>
-
-
-extern PyObject *g_gpError;
+//#include <tchar.h>
+#include <stdlib.h>
+#include <wchar.h>
 
 
 /* Macro to get array element count; */
@@ -14,30 +13,35 @@ extern PyObject *g_gpError;
 
 /* Macro for checking function arguments count; */
 #define CHECK_FUNCTION_ARGUMENTS_COUNT(c) {\
-    DWORD dwArgumentCount = PyTuple_GET_SIZE(args);\
-    if (dwArgumentCount != c) {\
-    PyErr_Format(PyExc_TypeError, "%s() takes %d arguments. (%d given)", __FUNCTION__, c, dwArgumentCount);\
-    return NULL;\
-    }}
+    unsigned int uiArgumentCount = PyTuple_GET_SIZE(args);\
+    if (uiArgumentCount != c) {\
+        PyErr_Format(PyExc_TypeError, _T("%s() takes %u arguments. (%u given)"), __FUNCTION__, c, uiArgumentCount);\
+        return NULL;\
+    }\
+}
 
 /* Macro for checking gp call result; */
 #define CHECK_GP_CALL_RESULT(r) {\
     if (r.errorStatus != OPGP_ERROR_STATUS_SUCCESS) {\
-        _RaiseError(PyExc_Exception, __FUNCTION__, (const wchar_t *)r.errorMessage);\
+        _RaiseError(PyExc_Exception, __FUNCTION__, r.errorMessage);\
         return NULL;\
     }\
 }
 
 /* Function to raise an error; */
-static void _RaiseError(PyObject *pobjError, const char *pcFunctionName, const wchar_t *pwcMessage)
+//static void _RaiseError(PyObject *pobjError, const char *pcFunctionName, const wchar_t *pwcMessage)
+//{
+//    char pcMessage[0x400] = { 0 };
+//    size_t szCharConverted = 0;
+//    wcstombs_s(&szCharConverted, pcMessage, pwcMessage, wcslen(pwcMessage));
+//
+//    char pcMessage2[0x400] = { 0 };
+//    sprintf(pcMessage2, "%s(): %s", pcFunctionName, pcMessage);
+//    PyErr_SetString(pobjError, pcMessage2);
+//}
+static void _RaiseError(PyObject *pobjError, const char *pcFunctionName, const char *pcMessage)
 {
-    char pcMessage[0x400] = { 0 };
-    size_t szCharConverted = 0;
-    wcstombs_s(&szCharConverted, pcMessage, pwcMessage, wcslen(pwcMessage));
-
-    char pcMessage2[0x400] = { 0 };
-    sprintf(pcMessage2, "%s(): %s", pcFunctionName, pcMessage);
-    PyErr_SetString(pobjError, pcMessage2);
+    PyErr_SetString(pobjError, pcMessage);
 }
 
 
@@ -49,8 +53,10 @@ PyObject * establishContext(PyObject *self, PyObject *args)
     memset(&stCardContext.connectionFunctions, 0x00, sizeof(stCardContext.connectionFunctions));
     stCardContext.libraryHandle = NULL;
     stCardContext.librarySpecific = NULL;
-    _tcsncpy_s(stCardContext.libraryName, ARRAY_SIZE(stCardContext.libraryName), _T("gppcscconnectionplugin"), _tcslen(_T("gppcscconnectionplugin")));
-    _tcsncpy_s(stCardContext.libraryVersion, ARRAY_SIZE(stCardContext.libraryVersion), _T("1"), _tcslen( _T("1")));
+    strncpy(stCardContext.libraryName, _T("gppcscconnectionplugin"), _tcslen(_T("gppcscconnectionplugin")));
+    strncpy(stCardContext.libraryVersion, _T("1"), _tcslen( _T("1")));
+//    _tcsncpy_s(stCardContext.libraryName, ARRAY_SIZE(stCardContext.libraryName), _T("gppcscconnectionplugin"), _tcslen(_T("gppcscconnectionplugin")));
+//    _tcsncpy_s(stCardContext.libraryVersion, ARRAY_SIZE(stCardContext.libraryVersion), _T("1"), _tcslen( _T("1")));
     OPGP_ERROR_STATUS errorStatus = OPGP_establish_context(&stCardContext);
     CHECK_GP_CALL_RESULT(errorStatus);
 
@@ -156,7 +162,7 @@ PyObject * disconnectCard(PyObject *self, PyObject *args)
     return PyLong_FromLong(0);
 }
 
-PyObject * OPGP_select_application(PyObject *self, PyObject *args)
+PyObject * pyOPGP_select_application(PyObject *self, PyObject *args)
 {
     CHECK_FUNCTION_ARGUMENTS_COUNT(3);
 
@@ -328,7 +334,8 @@ PyObject * pyGP211_get_data(PyObject *self, PyObject *args)
     if (PyString_GET_SIZE(pobjIdentifier) < 2) {
         baIdentifier[1] = PyString_AsString(pobjIdentifier)[0];
     } else {
-        memcpy_s(baIdentifier, 2, PyString_AsString(pobjIdentifier), 2);
+        memcpy(baIdentifier, PyString_AsString(pobjIdentifier), 2);
+//        memcpy_s(baIdentifier, 2, PyString_AsString(pobjIdentifier), 2);
     }
     BYTE baRecvBuffer[0x100] = { 0 };
     DWORD dwRecvBufferLength = sizeof(baRecvBuffer);
@@ -548,7 +555,8 @@ PyObject * pyGP211_delete_application(PyObject *self, PyObject *args)
         PyObject *pobjAID = PyTuple_GetItem(pobjAIDs, dw);
         BYTE bAidLength = (BYTE)PyString_GET_SIZE(pobjAID);
         staAIDs[dw].AIDLength = bAidLength;
-        memcpy_s(staAIDs[dw].AID, 16, PyString_AsString(pobjAID), bAidLength);
+//        memcpy_s(staAIDs[dw].AID, 16, PyString_AsString(pobjAID), bAidLength);
+        memcpy(staAIDs[dw].AID, PyString_AsString(pobjAID), bAidLength);
     }
 
     GP211_RECEIPT_DATA bstReceiptData[NUM_APPLICATIONS] = { 0 };
@@ -1007,7 +1015,7 @@ PyObject * pyGP211_send_APDU(PyObject *self, PyObject *args)
     }
     PyObject * pobjCApdu = PyTuple_GetItem(args, 3);
 
-    byte* pbCApdu = (byte *)PyString_AsString(pobjCApdu);
+    BYTE* pbCApdu = (BYTE *)PyString_AsString(pobjCApdu);
     DWORD dwCApduLength = PyString_GET_SIZE(pobjCApdu);
     BYTE baRApdu[0x100] = { 0 };
     DWORD dwRApduLength = sizeof(baRApdu) / sizeof(BYTE);
@@ -1154,7 +1162,7 @@ PyObject * pyGP211_validate_extradition_receipt(PyObject *self, PyObject *args)
     return PyLong_FromLong(0);
 }
 
-PyObject * OPGP_manage_channel(PyObject *self, PyObject *args)
+PyObject * pyOPGP_manage_channel(PyObject *self, PyObject *args)
 {
     CHECK_FUNCTION_ARGUMENTS_COUNT(5);
 
@@ -1171,7 +1179,7 @@ PyObject * OPGP_manage_channel(PyObject *self, PyObject *args)
     return PyLong_FromLong(0);
 }
 
-PyObject * OPGP_select_channel(PyObject *self, PyObject *args)
+PyObject * pyOPGP_select_channel(PyObject *self, PyObject *args)
 {
     CHECK_FUNCTION_ARGUMENTS_COUNT(2);
 
@@ -1395,7 +1403,7 @@ PyObject * pyGP211_end_R_MAC(PyObject *self, PyObject *args)
     return NULL;
 }
 
-PyObject * OPGP_read_executable_load_file_parameters(PyObject *self, PyObject *args)
+PyObject * pyOPGP_read_executable_load_file_parameters(PyObject *self, PyObject *args)
 {
     CHECK_FUNCTION_ARGUMENTS_COUNT(1);
 
@@ -1425,37 +1433,37 @@ PyObject * OPGP_read_executable_load_file_parameters(PyObject *self, PyObject *a
     return pobjRet;
 }
 
-PyObject * OPGP_VISA2_derive_keys(PyObject *self, PyObject *args)
+PyObject * pyOPGP_VISA2_derive_keys(PyObject *self, PyObject *args)
 {
     PyErr_Format(PyExc_NotImplementedError, "%s() not implemented.", __FUNCTION__);
     return NULL;
 }
 
-PyObject * OPGP_cap_to_ijc(PyObject *self, PyObject *args)
+PyObject * pyOPGP_cap_to_ijc(PyObject *self, PyObject *args)
 {
     PyErr_Format(PyExc_NotImplementedError, "%s() not implemented.", __FUNCTION__);
     return NULL;
 }
 
-PyObject * OPGP_extract_cap_file(PyObject *self, PyObject *args)
+PyObject * pyOPGP_extract_cap_file(PyObject *self, PyObject *args)
 {
     PyErr_Format(PyExc_NotImplementedError, "%s() not implemented.", __FUNCTION__);
     return NULL;
 }
 
-PyObject * OPGP_read_executable_load_file_parameters_from_buffer(PyObject *self, PyObject *args)
+PyObject * pyOPGP_read_executable_load_file_parameters_from_buffer(PyObject *self, PyObject *args)
 {
     PyErr_Format(PyExc_NotImplementedError, "%s() not implemented.", __FUNCTION__);
     return NULL;
 }
 
-PyObject * OPGP_EMV_CPS11_derive_keys(PyObject *self, PyObject *args)
+PyObject * pyOPGP_EMV_CPS11_derive_keys(PyObject *self, PyObject *args)
 {
     PyErr_Format(PyExc_NotImplementedError, "%s() not implemented.", __FUNCTION__);
     return NULL;
 }
 
-PyObject * OPGP_enable_trace_mode(PyObject *self, PyObject *args)
+PyObject * pyOPGP_enable_trace_mode(PyObject *self, PyObject *args)
 {
     CHECK_FUNCTION_ARGUMENTS_COUNT(1);
 

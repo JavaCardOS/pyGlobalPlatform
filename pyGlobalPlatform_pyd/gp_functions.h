@@ -3,7 +3,7 @@
 
 #include <Python.h>
 
-PyObject* OPGP_enable_trace_mode(PyObject* self, PyObject* args);
+PyObject* pyOPGP_enable_trace_mode(PyObject* self, PyObject* args);
 
 PyObject* establishContext(PyObject* self, PyObject* args);
 PyObject* releaseContext(PyObject* self, PyObject* args);
@@ -11,7 +11,7 @@ PyObject* listReaders(PyObject* self, PyObject* args);
 PyObject* connectCard(PyObject* self, PyObject* args);
 PyObject* disconnectCard(PyObject* self, PyObject* args);
 
-PyObject* OPGP_select_application(PyObject* self, PyObject* args);
+PyObject* pyOPGP_select_application(PyObject* self, PyObject* args);
 PyObject* pyGP211_get_status(PyObject* self, PyObject* args);
 PyObject* pyGP211_set_status(PyObject* self, PyObject* args);
 PyObject* pyGP211_mutual_authentication(PyObject* self, PyObject* args);
@@ -51,8 +51,8 @@ PyObject* pyGP211_validate_delete_receipt(PyObject* self, PyObject* args);
 PyObject* pyGP211_validate_install_receipt(PyObject* self, PyObject* args);
 PyObject* pyGP211_validate_load_receipt(PyObject* self, PyObject* args);
 PyObject* pyGP211_validate_extradition_receipt(PyObject* self, PyObject* args);
-PyObject* OPGP_manage_channel(PyObject* self, PyObject* args);
-PyObject* OPGP_select_channel(PyObject* self, PyObject* args);
+PyObject* pyOPGP_manage_channel(PyObject* self, PyObject* args);
+PyObject* pyOPGP_select_channel(PyObject* self, PyObject* args);
 PyObject* pyGP211_store_data(PyObject* self, PyObject* args);
 PyObject* OP201_get_status(PyObject* self, PyObject* args);
 PyObject* OP201_set_status(PyObject* self, PyObject* args);
@@ -86,11 +86,11 @@ PyObject* OP201_validate_install_receipt(PyObject* self, PyObject* args);
 PyObject* OP201_validate_load_receipt(PyObject* self, PyObject* args);
 PyObject* pyGP211_begin_R_MAC(PyObject* self, PyObject* args);
 PyObject* pyGP211_end_R_MAC(PyObject* self, PyObject* args);
-PyObject* OPGP_read_executable_load_file_parameters(PyObject* self, PyObject* args);
-PyObject* OPGP_VISA2_derive_keys(PyObject* self, PyObject* args);
-PyObject* OPGP_cap_to_ijc(PyObject* self, PyObject* args);
-PyObject* OPGP_extract_cap_file(PyObject* self, PyObject* args);
-PyObject* OPGP_read_executable_load_file_parameters_from_buffer(PyObject* self, PyObject* args);
-PyObject* OPGP_EMV_CPS11_derive_keys(PyObject* self, PyObject* args);
+PyObject* pyOPGP_read_executable_load_file_parameters(PyObject* self, PyObject* args);
+PyObject* pyOPGP_VISA2_derive_keys(PyObject* self, PyObject* args);
+PyObject* pyOPGP_cap_to_ijc(PyObject* self, PyObject* args);
+PyObject* pyOPGP_extract_cap_file(PyObject* self, PyObject* args);
+PyObject* pyOPGP_read_executable_load_file_parameters_from_buffer(PyObject* self, PyObject* args);
+PyObject* pyOPGP_EMV_CPS11_derive_keys(PyObject* self, PyObject* args);
 
 #endif

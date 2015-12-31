@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.2)
+project (pyglobalplatform)
+add_library (pyglobalplatform SHARED main.cpp gp_functions.cpp)
+set_target_properties (pyglobalplatform PROPERTIES PREFIX "")
+include_directories ( /usr/include /usr/include/PCSC /usr/include/python2.7 )
+target_link_libraries (pyglobalplatform globalplatform)
+install (TARGETS pyglobalplatform DESTINATION /usr/lib/python2.7/lib-dynload)
