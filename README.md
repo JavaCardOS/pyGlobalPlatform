@@ -42,17 +42,12 @@ For more api usage examples, please visit [pyGlobalPlatform Developer's Guide](h
 
 # Build
 
-- **Windows**
-
-	You can build the library use Visual Studio. 
-- **Linux**
-
-	Not supported now. Next version will implements.
+Provide cmake script, this project can be compiled for use on both windows and linux platform. For more details, please visit our forum [JavacardOS pyGlobalPlatform Discussions](http://javacardos.com/javacardforum/viewforum.php?f=41).
 
 # Developer's Guide
 Introduce the usage of library APIs. Visit: [pyGlobalPlatform Developer's Guide](http://javacardos.com/javacardforum/viewforum.php?f=41)
 # Discussions
-If you have any questions, please visit: [JavacardOS Discussions](http://javacardos.com/javacardforum/viewforum.php?f=41)
+If you have any questions, please visit: [JavacardOS pyGlobalPlatform Discussions](http://javacardos.com/javacardforum/viewforum.php?f=41)
 
 # Website
 [JavacardOS](http://www.javacardos.com)
