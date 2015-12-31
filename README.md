@@ -15,7 +15,7 @@ See [GlobalPlatform Library API reference](http://globalplatform.sourceforge.net
 ![Structure](pyGlobalPlatform.png)
 
 - **Opensource project [GlobalPlatform](http://sourceforge.net/projects/globalplatform/)**: The implementation of GlobalPlatform functions.
-- **pyGlobalPlatform-pyd**: python->C convert.
+- **pyGlobalPlatform-pyd**: python objects to C data types conversion.
 - **pyGlobalPlatform-py**: Define python API prototype, constants.
 - **GlobalPlatform Client Applications**: Implemention of some GP tools using python programming language.
 
