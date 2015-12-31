@@ -3,33 +3,13 @@ pyGlobalPlatform is a open source python **globalplatform** client library. It i
 
 # Dependencies
 [GlobalPlatform](http://sourceforge.net/projects/globalplatform/)
-## Files used when building
-- globalplatform.h
-
-	Header file of opensource globalplatform library.
-- globalplatform.lib
-
-	The library file of opensource globalplatform library.
-
-## Files used when run
-- globalplatform.dll
-
-	The dll of opensource globalplatform library.
-- libeay32.dll/ssleay32.dll/zlib1.dll
-
-	Dlls globalplatform.dll used.
-- GPPcScConnectionPlugin.dll
-
-	Dll globalplatform.dll used in runtime.
-
-###Note:
-    1. The dll files shall be in the BIN path when globalplatform.dll functions is called.
-    2. You can download the header/library files and dll files from http://javacardos.com/javacardforum/viewforum.php?f=41.
 
 # Usage:
 ![Usage](pyGlobalPlatform-usage.png)
 
-For more api usage examples, please visit [pyGlobalPlatform Developer's Guide](http://javacardos.com/javacardforum/viewforum.php?f=41)
+For more api usage examples, please visit [pyGlobalPlatform Developer's Guide](http://javacardos.com/javacardforum/viewforum.php?f=41).
+
+See [GlobalPlatform Library API reference](http://globalplatform.sourceforge.net/apidocs/index.html) for more details about API.
 
 # Structure
 ![Structure](pyGlobalPlatform.png)
@@ -42,17 +22,12 @@ For more api usage examples, please visit [pyGlobalPlatform Developer's Guide](h
 
 # Build
 
-- **Windows**
-
-	You can build the library use Visual Studio. 
-- **Linux**
-
-	Not supported now. Next version will implements.
+Provide cmake script, this project can be compiled for use on both windows and linux platform. For more details, please visit our forum [JavacardOS pyGlobalPlatform Discussions](http://javacardos.com/javacardforum/viewforum.php?f=41).
 
 # Developer's Guide
 Introduce the usage of library APIs. Visit: [pyGlobalPlatform Developer's Guide](http://javacardos.com/javacardforum/viewforum.php?f=41)
 # Discussions
-If you have any questions, please visit: [JavacardOS Discussions](http://javacardos.com/javacardforum/viewforum.php?f=41)
+If you have any questions, please visit: [JavacardOS pyGlobalPlatform Discussions](http://javacardos.com/javacardforum/viewforum.php?f=41)
 
 # Website
 [JavacardOS](http://www.javacardos.com)
