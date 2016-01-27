@@ -1180,7 +1180,7 @@ PyObject * pyOPGP_manage_channel(PyObject *self, PyObject *args)
     OPGP_ERROR_STATUS errorStatus = OPGP_manage_channel(stCardContext, &stCardInfo, &stGP211SecurityInfo, bOpenClose, bChannelNumberToClose, &bChannelNumberOpened);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyLong_FromLong(0);
+    return PyLong_FromLong(bChannelNumberOpened);
 }
 
 PyObject * pyOPGP_select_channel(PyObject *self, PyObject *args)
