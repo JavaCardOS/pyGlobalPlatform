@@ -332,7 +332,7 @@ def selectChannel(cardInfo, channelNUmber):
     """
     If multiple Logical Channels are open or a new Logical Channel is opened with select_application(), selects the Logical Channel.
     """
-    return gp.OPGP_select_channel(channelNUmber)
+    return gp.OPGP_select_channel(cardInfo, channelNUmber)
 
 def storeData(context, cardInfo, securityInfo, data):
     """
