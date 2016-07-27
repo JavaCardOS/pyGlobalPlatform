@@ -3,6 +3,10 @@
 
 #include <Python.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 PyObject* pyOPGP_enable_trace_mode(PyObject* self, PyObject* args);
 
 PyObject* establishContext(PyObject* self, PyObject* args);
@@ -54,36 +58,36 @@ PyObject* pyGP211_validate_extradition_receipt(PyObject* self, PyObject* args);
 PyObject* pyOPGP_manage_channel(PyObject* self, PyObject* args);
 PyObject* pyOPGP_select_channel(PyObject* self, PyObject* args);
 PyObject* pyGP211_store_data(PyObject* self, PyObject* args);
-PyObject* OP201_get_status(PyObject* self, PyObject* args);
-PyObject* OP201_set_status(PyObject* self, PyObject* args);
-PyObject* OP201_mutual_authentication(PyObject* self, PyObject* args);
-PyObject* OP201_get_data(PyObject* self, PyObject* args);
-PyObject* OP201_put_data(PyObject* self, PyObject* args);
-PyObject* OP201_pin_change(PyObject* self, PyObject* args);
-PyObject* OP201_put_3desKey(PyObject* self, PyObject* args);
-PyObject* OP201_put_rsa_key(PyObject* self, PyObject* args);
-PyObject* OP201_put_secure_channel_keys(PyObject* self, PyObject* args);
-PyObject* OP201_delete_key(PyObject* self, PyObject* args);
-PyObject* OP201_get_key_information_templates(PyObject* self, PyObject* args);
-PyObject* OP201_delete_application(PyObject* self, PyObject* args);
-PyObject* OP201_install_for_load(PyObject* self, PyObject* args);
-PyObject* OP201_get_load_token_signature_data(PyObject* self, PyObject* args);
-PyObject* OP201_get_install_token_signature_data(PyObject* self, PyObject* args);
-PyObject* OP201_calculate_load_token(PyObject* self, PyObject* args);
-PyObject* OP201_calculate_install_token(PyObject* self, PyObject* args);
-PyObject* OP201_calculate_load_file_DAP(PyObject* self, PyObject* args);
-PyObject* OP201_load(PyObject* self, PyObject* args);
-PyObject* OP201_load_from_buffer(PyObject* self, PyObject* args);
-PyObject* OP201_install_for_install(PyObject* self, PyObject* args);
-PyObject* OP201_install_for_make_selectable(PyObject* self, PyObject* args);
-PyObject* OP201_install_for_install_and_make_selectable(PyObject* self, PyObject* args);
-PyObject* OP201_put_delegated_management_keys(PyObject* self, PyObject* args);
-PyObject* OP201_send_APDU(PyObject* self, PyObject* args);
-PyObject* OP201_calculate_3des_DAP(PyObject* self, PyObject* args);
-PyObject* OP201_calculate_rsa_DAP(PyObject* self, PyObject* args);
-PyObject* OP201_validate_delete_receipt(PyObject* self, PyObject* args);
-PyObject* OP201_validate_install_receipt(PyObject* self, PyObject* args);
-PyObject* OP201_validate_load_receipt(PyObject* self, PyObject* args);
+PyObject* pyOP201_get_status(PyObject* self, PyObject* args);
+PyObject* pyOP201_set_status(PyObject* self, PyObject* args);
+PyObject* pyOP201_mutual_authentication(PyObject* self, PyObject* args);
+PyObject* pyOP201_get_data(PyObject* self, PyObject* args);
+PyObject* pyOP201_put_data(PyObject* self, PyObject* args);
+PyObject* pyOP201_pin_change(PyObject* self, PyObject* args);
+PyObject* pyOP201_put_3desKey(PyObject* self, PyObject* args);
+PyObject* pyOP201_put_rsa_key(PyObject* self, PyObject* args);
+PyObject* pyOP201_put_secure_channel_keys(PyObject* self, PyObject* args);
+PyObject* pyOP201_delete_key(PyObject* self, PyObject* args);
+PyObject* pyOP201_get_key_information_templates(PyObject* self, PyObject* args);
+PyObject* pyOP201_delete_application(PyObject* self, PyObject* args);
+PyObject* pyOP201_install_for_load(PyObject* self, PyObject* args);
+PyObject* pyOP201_get_load_token_signature_data(PyObject* self, PyObject* args);
+PyObject* pyOP201_get_install_token_signature_data(PyObject* self, PyObject* args);
+PyObject* pyOP201_calculate_load_token(PyObject* self, PyObject* args);
+PyObject* pyOP201_calculate_install_token(PyObject* self, PyObject* args);
+PyObject* pyOP201_calculate_load_file_DAP(PyObject* self, PyObject* args);
+PyObject* pyOP201_load(PyObject* self, PyObject* args);
+PyObject* pyOP201_load_from_buffer(PyObject* self, PyObject* args);
+PyObject* pyOP201_install_for_install(PyObject* self, PyObject* args);
+PyObject* pyOP201_install_for_make_selectable(PyObject* self, PyObject* args);
+PyObject* pyOP201_install_for_install_and_make_selectable(PyObject* self, PyObject* args);
+PyObject* pyOP201_put_delegated_management_keys(PyObject* self, PyObject* args);
+PyObject* pyOP201_send_APDU(PyObject* self, PyObject* args);
+PyObject* pyOP201_calculate_3des_DAP(PyObject* self, PyObject* args);
+PyObject* pyOP201_calculate_rsa_DAP(PyObject* self, PyObject* args);
+PyObject* pyOP201_validate_delete_receipt(PyObject* self, PyObject* args);
+PyObject* pyOP201_validate_install_receipt(PyObject* self, PyObject* args);
+PyObject* pyOP201_validate_load_receipt(PyObject* self, PyObject* args);
 PyObject* pyGP211_begin_R_MAC(PyObject* self, PyObject* args);
 PyObject* pyGP211_end_R_MAC(PyObject* self, PyObject* args);
 PyObject* pyOPGP_read_executable_load_file_parameters(PyObject* self, PyObject* args);
@@ -92,5 +96,9 @@ PyObject* pyOPGP_cap_to_ijc(PyObject* self, PyObject* args);
 PyObject* pyOPGP_extract_cap_file(PyObject* self, PyObject* args);
 PyObject* pyOPGP_read_executable_load_file_parameters_from_buffer(PyObject* self, PyObject* args);
 PyObject* pyOPGP_EMV_CPS11_derive_keys(PyObject* self, PyObject* args);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
