@@ -6,7 +6,7 @@ Created on 2015-11-20
 @author: javacardos@gmail.com
 '''
 
-import pyglobalplatform as gp
+import pyGlobalPlatform as gp
 
 
 def establishContext():
