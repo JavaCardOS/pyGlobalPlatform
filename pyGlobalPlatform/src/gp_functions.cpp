@@ -1086,13 +1086,13 @@ PyObject* pyOPGP_read_executable_load_file_parameters(PyObject* self, PyObject* 
     CHECK_GP_CALL_RESULT(errorStatus);
 
     PyObject* pobjRet = PyDict_New();
-    PyDict_SetItem(pobjRet, PyUnicode_FromKindAndData(PyUnicode_Kind::PyUnicode_1BYTE_KIND, "loadFileSize", strlen("loadFileSize")), PyLong_FromLong(stLoadFileParameters.loadFileSize));
-    PyDict_SetItem(pobjRet, PyUnicode_FromKindAndData(PyUnicode_Kind::PyUnicode_1BYTE_KIND, "loadFileAID", strlen("loadFileAID")), PyUnicode_FromKindAndData(PyUnicode_Kind::PyUnicode_1BYTE_KIND, (const char *)stLoadFileParameters.loadFileAID.AID, stLoadFileParameters.loadFileAID.AIDLength));
+    PyDict_SetItem(pobjRet, PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, "loadFileSize", strlen("loadFileSize")), PyLong_FromLong(stLoadFileParameters.loadFileSize));
+    PyDict_SetItem(pobjRet, PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, "loadFileAID", strlen("loadFileAID")), PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)stLoadFileParameters.loadFileAID.AID, stLoadFileParameters.loadFileAID.AIDLength));
     PyObject* pobjAppletAIDs = PyTuple_New(stLoadFileParameters.numAppletAIDs);
     for (BYTE b = 0; b < stLoadFileParameters.numAppletAIDs; ++b) {
-        PyTuple_SetItem(pobjAppletAIDs, b, PyUnicode_FromKindAndData(PyUnicode_Kind::PyUnicode_1BYTE_KIND, (const char *)stLoadFileParameters.appletAIDs[b].AID, stLoadFileParameters.appletAIDs[b].AIDLength));
+        PyTuple_SetItem(pobjAppletAIDs, b, PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)stLoadFileParameters.appletAIDs[b].AID, stLoadFileParameters.appletAIDs[b].AIDLength));
     }
-    PyDict_SetItem(pobjRet, PyUnicode_FromKindAndData(PyUnicode_Kind::PyUnicode_1BYTE_KIND, "applets", strlen("applets")), pobjAppletAIDs);
+    PyDict_SetItem(pobjRet, PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, "applets", strlen("applets")), pobjAppletAIDs);
     return pobjRet;
 }
 

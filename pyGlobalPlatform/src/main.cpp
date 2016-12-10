@@ -88,5 +88,5 @@ PyMODINIT_FUNC PyInit_pyGlobalPlatform(void)
 
 static PyObject* version(PyObject *self, PyObject *args)
 {
-    return Py_BuildValue("s", "1.3");
+    return Py_BuildValue("s", "1.4");
 }
