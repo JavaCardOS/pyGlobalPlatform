@@ -22,8 +22,7 @@ if __name__ == "__main__":
     readernames = gp.listReaders(c)
     for i in range(len(readernames)):
         print('%d - %s' %(i, readernames[i]))
-    # i = int(input("Please select one reader: "))
-    i = 5
+    i = int(input("Please select one reader: "))
     cc = gp.connectCard(c, readernames[i], gp.SCARD_PROTOCOL_T1)
     
     gp.sendApdu(c, cc, None, '\x00\xB0\x00\x00\x00')
