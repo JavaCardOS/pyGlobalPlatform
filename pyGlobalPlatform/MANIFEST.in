@@ -8,3 +8,4 @@ recursive-include data *
 # it's already declared in setup.py
 # include sample/*.dat
 include src/*.h
+include pyGlobalPlatform/javacardos.cap
