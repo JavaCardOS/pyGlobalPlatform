@@ -50,4 +50,4 @@ Introduce the usage of library APIs. Visit: [pyGlobalPlatform Developer's Guide]
 If you have any questions, please visit: [JavacardOS pyGlobalPlatform Discussions](http://javacardos.com/javacardforum/viewforum.php?f=41?ws=github&prj=pyGP)
 
 # Website
-[JavacardOS](http://www.javacardos.com)
+[JavacardOS](http://www.javacardos.com?ws=github&prj=pyGP)
