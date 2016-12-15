@@ -27,7 +27,7 @@ Open source project: [GlobalPlatform](http://sourceforge.net/projects/globalplat
 ## Result
 ![Usage](pyGlobalPlatform-usage.png)
 
-For more api usage examples, please visit [pyGlobalPlatform Developer's Guide](http://javacardos.com/javacardforum/viewforum.php?f=41).
+For more api usage examples, please visit [pyGlobalPlatform Developer's Guide](http://javacardos.com/javacardforum/viewforum.php?f=41?ws=github&prj=pyGP).
 
 See [GlobalPlatform Library API reference](http://globalplatform.sourceforge.net/apidocs/index.html) for more details about API.
 
@@ -42,12 +42,12 @@ See [GlobalPlatform Library API reference](http://globalplatform.sourceforge.net
 
 # Build
 
-Provide cmake script, this project can be compiled for use on both windows and linux platform. For more details, please visit our forum [JavacardOS pyGlobalPlatform Discussions](http://javacardos.com/javacardforum/viewforum.php?f=41).
+Provide cmake script, this project can be compiled for use on both windows and linux platform. For more details, please visit our forum [JavacardOS pyGlobalPlatform Discussions](http://javacardos.com/javacardforum/viewforum.php?f=41?ws=github&prj=pyGP).
 
 # Developer's Guide
-Introduce the usage of library APIs. Visit: [pyGlobalPlatform Developer's Guide](http://javacardos.com/javacardforum/viewforum.php?f=41)
+Introduce the usage of library APIs. Visit: [pyGlobalPlatform Developer's Guide]http://javacardos.com/javacardforum/viewforum.php?f=41?ws=github&prj=pyGP)
 # Discussions
-If you have any questions, please visit: [JavacardOS pyGlobalPlatform Discussions](http://javacardos.com/javacardforum/viewforum.php?f=41)
+If you have any questions, please visit: [JavacardOS pyGlobalPlatform Discussions](http://javacardos.com/javacardforum/viewforum.php?f=41?ws=github&prj=pyGP)
 
 # Website
 [JavacardOS](http://www.javacardos.com)
