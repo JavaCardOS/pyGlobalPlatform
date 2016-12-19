@@ -44,6 +44,7 @@
     }\
     \
 
+#ifdef UNICODE
 #define ARGS_GetTCHARArray(i, n) \
     PyObject* pobj##n = PyTuple_GetItem(args, i); \
     TCHAR *p##n = NULL; \
@@ -53,6 +54,19 @@
         dw##n##Length = (DWORD)PyUnicode_GetSize(pobj##n); \
     }\
     \
+
+#else
+#define ARGS_GetTCHARArray(i, n) \
+    PyObject* pobj##n = PyTuple_GetItem(args, i); \
+    TCHAR *p##n = NULL; \
+    DWORD dw##n##Length = 0; \
+    if (pobj##n != Py_None) { \
+        p##n = PyBytes_AsString(PyUnicode_AsASCIIString(pobj##n)); \
+        dw##n##Length = (DWORD)PyUnicode_GetSize(pobj##n); \
+    }\
+    \
+
+#endif
 
 #define ARGS_GetStruct(i, T, n) \
     PyObject *pobj##n = PyTuple_GetItem(args, i); \
@@ -1137,6 +1151,3 @@ PyObject* pyOPGP_enable_trace_mode(PyObject* self, PyObject* args)
     return PyLong_FromLong(0);
 }
 
-#ifndef WIN32
-}
-#endif
