@@ -11,14 +11,14 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path, environ
 from distutils.extension import Extension
-from distutils.util import get_platform, check_environ
+from distutils.util import get_platform, check_environ, log
 
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
-description = 'A free opensource globalplatform library for java card and smartcard.'
+description = 'A free opensource globalplatform library for java card and smartcard. https://www.javacardos.com'
 
 
 include_dirs = []
@@ -30,13 +30,16 @@ if 'win32' == get_platform():
     gp_library_dir = ''
 
     import sys
-    if ('install' in sys.argv) or ('bdist' in sys.argv):
-        if 'GLOBALPLATFORM_ROOT' in environ.keys():
-            gp_include_dir = environ['GLOBALPLATFORM_ROOT'] 
-            gp_library_dir = environ['GLOBALPLATFORM_ROOT'] 
-        else:
-            print('Please set system environ variable GLOBALPLATFORM_ROOT first!')
+    gp_include_dir = ''
+    gp_library_dir = ''
+    if ('install' in sys.argv) or ('bdist' in sys.argv) or ('sdist' in sys.argv) or ('bdist_wininst' in sys.argv):
+        gp_root = environ.get('GLOBALPLATFORM_ROOT', '')
+        if len(gp_root) == 0:
+            print('Please set environment variable GLOBALPLATFORM_ROOT to specify the root of library GlobalPlatform.')
             exit(-1)
+            
+        gp_include_dir = gp_root
+        gp_library_dir = gp_root
 
     include_dirs = [gp_include_dir, ]
     define_macros = [('_WIN32', 1), ('WIN32', 1), ]
@@ -52,7 +55,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.4.5',
+    version='1.4.12',
 
     description=description,
     long_description=long_description,
@@ -84,6 +87,12 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.3',
+        'Programming Language :: Python :: 2.4',
+        'Programming Language :: Python :: 2.5',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
@@ -127,7 +136,7 @@ setup(
     # need to place data files outside of your packages. See:
     # http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
     # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-    data_files=[('test_cap_file', ['pyGlobalPlatform/javacardos.cap'])],
+    data_files=[],
 
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
@@ -141,12 +150,11 @@ setup(
     ext_modules = [
         Extension(
             'pyGlobalPlatform.pyGlobalPlatform'
-            , ['./src/main.cpp', './src/gp_functions.cpp', ]
+            , ['./src/main.cpp', './src/gp_functions.cpp']
             , include_dirs = include_dirs
             , define_macros = define_macros
             , libraries = ['globalplatform', ]
             , library_dirs = library_dirs
         )
     ],
-    
 )

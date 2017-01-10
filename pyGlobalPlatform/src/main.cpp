@@ -69,6 +69,7 @@ static PyMethodDef GPMethods[] = {
     { NULL, NULL, 0, NULL }        /* Sentinel */
 };
 
+#if (PY_MAJOR_VERSION != 2)
 static PyModuleDef g_pyModuleDef = {
     PyModuleDef_HEAD_INIT
     , "pyGlobalPlatform"
@@ -85,6 +86,15 @@ PyMODINIT_FUNC PyInit_pyGlobalPlatform(void)
 {
     return PyModule_Create(&g_pyModuleDef);
 }
+
+#else
+
+PyMODINIT_FUNC initpyGlobalPlatform(void)
+{
+    Py_InitModule("pyGlobalPlatform.pyGlobalPlatform", GPMethods);
+}
+
+#endif
 
 static PyObject* version(PyObject *self, PyObject *args)
 {

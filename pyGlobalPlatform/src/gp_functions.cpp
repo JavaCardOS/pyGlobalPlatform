@@ -13,6 +13,26 @@
 #include "globalplatform/globalplatform.h"
 #include "globalplatform/connectionplugin.h"
 
+#if (PY_MAJOR_VERSION == 2)
+// String => Array;
+#define _PyArray_AsString(a)                PyString_AsString(a)
+// Array => String;
+#define _PyString_FromArrayAndSize(a, s)    PyString_FromStringAndSize(a, s)
+// String => Array => size;
+#define _PyArray_GetSize(a)                 PyString_Size(a)
+// char * => String;
+#define _PyString_FromString(s)             PyString_FromString(s)
+#else
+// String => Array;
+#define _PyArray_AsString(a)                PyUnicode_1BYTE_DATA(a)
+// Array => String;
+#define _PyString_FromArrayAndSize(a, s)    PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, a, s)
+// String => Array => size;
+#define _PyArray_GetSize(a)                 PyUnicode_GetSize(a)
+// char * => String;
+#define _PyString_FromString(s)             PyUnicode_FromString(s)
+#endif
+
 
 /* Macro to get array element count; */
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
@@ -39,8 +59,8 @@
     T *p##n = NULL; \
     DWORD dw##n##Length = 0; \
     if (pobj##n != Py_None) { \
-        p##n = (T *)PyUnicode_1BYTE_DATA(pobj##n); \
-        dw##n##Length = (DWORD)PyUnicode_GetSize(pobj##n); \
+        p##n = (T *)_PyArray_AsString(pobj##n); \
+        dw##n##Length = (DWORD) _PyArray_GetSize(pobj##n); \
     }\
     \
 
@@ -74,7 +94,7 @@
     T *pst##n = NULL;\
     DWORD dwst##n##Length = 0; \
     if (pobj##n != Py_None) { \
-        st##n = *(T *)PyUnicode_1BYTE_DATA(pobj##n);\
+        st##n = *(T *)_PyArray_AsString(pobj##n);\
         pst##n = &st##n;\
         dwst##n##Length = PyUnicode_GetSize(pobj##n); \
     }\
@@ -86,7 +106,7 @@
         _RaiseError(PyExc_Exception, __FUNCTION__, _T("Card context can not be None!"));\
         return NULL;\
     }\
-    OPGP_CARD_CONTEXT stCardContext = *(OPGP_CARD_CONTEXT *)PyUnicode_1BYTE_DATA(pobjCardContext);\
+    OPGP_CARD_CONTEXT stCardContext = *(OPGP_CARD_CONTEXT *)_PyArray_AsString(pobjCardContext);\
     \
 
 #define ARGS_GetCardInfo(i) \
@@ -95,7 +115,7 @@
         _RaiseError(PyExc_Exception, __FUNCTION__, _T("Cardinfo can not be None."));\
         return NULL;\
     }\
-    OPGP_CARD_INFO stCardInfo = *(OPGP_CARD_INFO *)PyUnicode_1BYTE_DATA(pobjCardInfo);\
+    OPGP_CARD_INFO stCardInfo = *(OPGP_CARD_INFO *)_PyArray_AsString(pobjCardInfo);\
     \
 
 
@@ -119,17 +139,12 @@ PyObject* establishContext(PyObject* self, PyObject* args)
     memset(&stCardContext.connectionFunctions, 0x00, sizeof(stCardContext.connectionFunctions));
     stCardContext.libraryHandle = NULL;
     stCardContext.librarySpecific = NULL;
-#ifdef WIN32
     _tcsncpy_s(stCardContext.libraryName, ARRAY_SIZE(stCardContext.libraryName), _T("gppcscconnectionplugin"), _tcslen(_T("gppcscconnectionplugin")));
     _tcsncpy_s(stCardContext.libraryVersion, ARRAY_SIZE(stCardContext.libraryVersion), _T("1"), _tcslen( _T("1")));
-#else
-    strncpy(stCardContext.libraryName, _T("gppcscconnectionplugin"), _tcslen(_T("gppcscconnectionplugin")));
-    strncpy(stCardContext.libraryVersion, _T("1"), _tcslen( _T("1")));
-#endif
     OPGP_ERROR_STATUS errorStatus = OPGP_establish_context(&stCardContext);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&stCardContext, sizeof(stCardContext));
+    return _PyString_FromArrayAndSize((const char *)&stCardContext, sizeof(stCardContext));
 }
 
 PyObject* releaseContext(PyObject* self, PyObject* args)
@@ -159,7 +174,7 @@ PyObject* listReaders(PyObject* self, PyObject* args)
     TCHAR* ptcaReadersName[0x100];
     DWORD dwReaderNameOffset = 0;
     while (true) {
-        if (tcaReaderNames[dwReaderNameOffset] == '\0') {
+        if (tcaReaderNames[dwReaderNameOffset] == _T('\0')) {
             break;
         }
 
@@ -172,9 +187,9 @@ PyObject* listReaders(PyObject* self, PyObject* args)
     PyObject* pobjReaderNames = PyTuple_New(iReaderCount);
     for (int i = 0; i < iReaderCount; ++i) {
 #ifdef UNICODE
-        PyObject* pobjReaderName = PyUnicode_FromWideChar(ptcaReadersName[i], _tcslen(ptcaReadersName[i]));
+        PyObject* pobjReaderName = PyUnicode_FromWideChar((const TCHAR *) ptcaReadersName[i], _tcslen(ptcaReadersName[i]));
 #else
-        PyObject* pobjReaderName = PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, ptcaReadersName[i], strlen(ptcaReadersName[i]));
+        PyObject* pobjReaderName = _PyString_FromArrayAndSize(ptcaReadersName[i], strlen(ptcaReadersName[i]));
 #endif
         PyTuple_SetItem(pobjReaderNames, i, pobjReaderName);
     }
@@ -196,7 +211,7 @@ PyObject* connectCard(PyObject* self, PyObject* args)
     OPGP_ERROR_STATUS errorStatus = OPGP_card_connect(stCardContext, pReaderName, &stCardInfo, lProtocol);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&stCardInfo, sizeof(OPGP_CARD_INFO));
+    return _PyString_FromArrayAndSize((const char *)&stCardInfo, sizeof(OPGP_CARD_INFO));
 }
 
 PyObject* disconnectCard(PyObject* self, PyObject* args)
@@ -248,9 +263,9 @@ PyObject* pyGP211_get_status(PyObject* self, PyObject* args)
         for (DWORD d = 0; d < dwDataCount; ++d) {
             PyObject* pobjOneAppletData = PyDict_New();
             GP211_APPLICATION_DATA* pstOneAppletData = &astAppletData[d];
-            PyDict_SetItem(pobjOneAppletData, PyUnicode_FromString("aid"), PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)pstOneAppletData->AID, pstOneAppletData->AIDLength));
-            PyDict_SetItem(pobjOneAppletData, PyUnicode_FromString("lifeCycleState"), PyLong_FromLong(pstOneAppletData->lifeCycleState));
-            PyDict_SetItem(pobjOneAppletData, PyUnicode_FromString("privileges"), PyLong_FromLong(pstOneAppletData->privileges));
+            PyDict_SetItem(pobjOneAppletData, _PyString_FromString("aid"), _PyString_FromArrayAndSize((const char *)pstOneAppletData->AID, pstOneAppletData->AIDLength));
+            PyDict_SetItem(pobjOneAppletData, _PyString_FromString("lifeCycleState"), PyLong_FromLong(pstOneAppletData->lifeCycleState));
+            PyDict_SetItem(pobjOneAppletData, _PyString_FromString("privileges"), PyLong_FromLong(pstOneAppletData->privileges));
 
             PyTuple_SetItem(pobjAppletData, d, pobjOneAppletData);
         }
@@ -264,16 +279,16 @@ PyObject* pyGP211_get_status(PyObject* self, PyObject* args)
         for (DWORD dwDataIndex = 0; dwDataIndex < dwDataCount; ++dwDataIndex) {
             PyObject* pobjOneExecuableData = PyDict_New();
             GP211_EXECUTABLE_MODULES_DATA* pstOneExecuableModulesData = &astExecutableData[dwDataIndex];
-            PyDict_SetItem(pobjOneExecuableData, PyUnicode_FromString("aid"), PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)pstOneExecuableModulesData->AID, pstOneExecuableModulesData->AIDLength));
-            PyDict_SetItem(pobjOneExecuableData, PyUnicode_FromString("lifeCycleState"), PyLong_FromLong(pstOneExecuableModulesData->lifeCycleState));
+            PyDict_SetItem(pobjOneExecuableData, _PyString_FromString("aid"), _PyString_FromArrayAndSize((const char *) pstOneExecuableModulesData->AID, pstOneExecuableModulesData->AIDLength));
+            PyDict_SetItem(pobjOneExecuableData, _PyString_FromString("lifeCycleState"), PyLong_FromLong(pstOneExecuableModulesData->lifeCycleState));
 
             BYTE bNumExecutableModules = pstOneExecuableModulesData->numExecutableModules;
             PyObject* pobjExecutableModuleData = PyTuple_New(bNumExecutableModules);
             for (BYTE bExecutableModuleIndex = 0; bExecutableModuleIndex < bNumExecutableModules; ++bExecutableModuleIndex) {
                 OPGP_AID* pstExecutableModuleAID = &pstOneExecuableModulesData->executableModules[bExecutableModuleIndex];
-                PyTuple_SetItem(pobjExecutableModuleData, bExecutableModuleIndex, PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)pstExecutableModuleAID->AID, pstExecutableModuleAID->AIDLength));
+                PyTuple_SetItem(pobjExecutableModuleData, bExecutableModuleIndex, _PyString_FromArrayAndSize((const char *)pstExecutableModuleAID->AID, pstExecutableModuleAID->AIDLength));
             }
-            PyDict_SetItem(pobjOneExecuableData, PyUnicode_FromString("executableModules"), pobjExecutableModuleData);
+            PyDict_SetItem(pobjOneExecuableData, _PyString_FromString("executableModules"), pobjExecutableModuleData);
 
             PyTuple_SetItem(pobjExecuableModulesData, dwDataIndex, pobjOneExecuableData);
         }
@@ -327,7 +342,7 @@ PyObject* pyGP211_mutual_authentication(PyObject* self, PyObject* args)
     OPGP_ERROR_STATUS errorStatus = GP211_mutual_authentication(stCardContext, stCardInfo, pBaseKey, pENCKey, pMACKey, pDEKKey, bKeySetVersion, bKeyIndex, bSecureChannelProtocol, bSecureChannelProtocolImpl, bSecurityLevel, bDerivationMethod, &stGP211SecurityInfo);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&stGP211SecurityInfo, sizeof(GP211_SECURITY_INFO));
+    return _PyString_FromArrayAndSize((const char *)&stGP211SecurityInfo, sizeof(GP211_SECURITY_INFO));
 }
 
 PyObject* pyGP211_init_implicit_secure_channel(PyObject* self, PyObject* args)
@@ -340,13 +355,13 @@ PyObject* pyGP211_init_implicit_secure_channel(PyObject* self, PyObject* args)
     ARGS_GetBYTEArray(3, BYTE, MACKey);
     ARGS_GetBYTEArray(4, BYTE, DEKKey);
     BYTE bSecureChannelProtocolImpl = (BYTE)PyLong_AsLong(PyTuple_GetItem(args, 5));
-    PBYTE pbSequenceCounter = (PBYTE)PyUnicode_1BYTE_DATA(PyTuple_GetItem(args, 6));
+    PBYTE pbSequenceCounter = (PBYTE)_PyArray_AsString(PyTuple_GetItem(args, 6));
 
     GP211_SECURITY_INFO stGP211SecurityInfo = { 0 };
     OPGP_ERROR_STATUS errorStatus = GP211_init_implicit_secure_channel(pAID, dwAIDLength, pBaseKey, pENCKey, pMACKey, pDEKKey, bSecureChannelProtocolImpl, pbSequenceCounter, &stGP211SecurityInfo);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&stGP211SecurityInfo, sizeof(GP211_SECURITY_INFO));
+    return _PyString_FromArrayAndSize((const char *)&stGP211SecurityInfo, sizeof(GP211_SECURITY_INFO));
 }
 
 PyObject* pyGP211_close_implicit_secure_channel(PyObject* self, PyObject* args)
@@ -371,10 +386,10 @@ PyObject* pyGP211_get_data(PyObject* self, PyObject* args)
     BYTE baIdentifier[2] = { 0 };
     if (pobjIdentifier != Py_None) {
         if (PyUnicode_GetSize(pobjIdentifier) < 2) {
-            baIdentifier[1] = PyUnicode_1BYTE_DATA(pobjIdentifier)[0];
+            baIdentifier[1] = _PyArray_AsString(pobjIdentifier)[0];
         }
         else {
-            memcpy(baIdentifier, PyUnicode_1BYTE_DATA(pobjIdentifier), 2);
+            memcpy(baIdentifier, _PyArray_AsString(pobjIdentifier), 2);
         }
     }
 
@@ -383,7 +398,7 @@ PyObject* pyGP211_get_data(PyObject* self, PyObject* args)
     OPGP_ERROR_STATUS errorStatus = GP211_get_data(stCardContext, stCardInfo, pstSecurityInfo, baIdentifier, baRecvBuffer, &dwRecvBufferLength);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)baRecvBuffer, dwRecvBufferLength);
+    return _PyString_FromArrayAndSize((const char *)baRecvBuffer, dwRecvBufferLength);
 }
 
 PyObject* pyGP211_get_data_iso7816_4(PyObject* self, PyObject* args)
@@ -399,7 +414,7 @@ PyObject* pyGP211_get_data_iso7816_4(PyObject* self, PyObject* args)
     OPGP_ERROR_STATUS errorStatus = GP211_get_data_iso7816_4(stCardContext, stCardInfo, pIdentifier, baRecvBuffer, &dwRecvBufferLength);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    PyObject* pobjRet = PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)baRecvBuffer, dwRecvBufferLength);
+    PyObject* pobjRet = _PyString_FromArrayAndSize((const char *)baRecvBuffer, dwRecvBufferLength);
 
     return pobjRet;
 }
@@ -554,7 +569,7 @@ PyObject* pyGP211_get_key_information_templates(PyObject* self, PyObject* args)
     OPGP_ERROR_STATUS errorStatus = GP211_get_key_information_templates(stCardContext, stCardInfo, pstSecurityInfo, bKeyInformationTemplate, pstKeyInformation, &dwKeyInformationCount);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&pstKeyInformation, dwKeyInformationCount * sizeof(GP211_KEY_INFORMATION));
+    return _PyString_FromArrayAndSize((const char *)&pstKeyInformation, dwKeyInformationCount * sizeof(GP211_KEY_INFORMATION));
 }
 
 PyObject* pyGP211_delete_application(PyObject* self, PyObject* args)
@@ -577,9 +592,9 @@ PyObject* pyGP211_delete_application(PyObject* self, PyObject* args)
             pobjAID = PyList_GetItem(pobjAIDs, dw);
         }
         
-        BYTE bAidLength = (BYTE)PyUnicode_GetSize(pobjAID);
+        BYTE bAidLength = (BYTE)_PyArray_GetSize(pobjAID);
         staAIDs[dw].AIDLength = bAidLength;
-        memcpy(staAIDs[dw].AID, PyUnicode_1BYTE_DATA(pobjAID), bAidLength);
+        memcpy(staAIDs[dw].AID, _PyArray_AsString(pobjAID), bAidLength);
     }
 
     GP211_RECEIPT_DATA bstReceiptData[NUM_APPLICATIONS] = { 0 };
@@ -588,7 +603,7 @@ PyObject* pyGP211_delete_application(PyObject* self, PyObject* args)
     CHECK_GP_CALL_RESULT(errorStatus);
 
     // TODO: Test this result; How to return the receipt data?
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (char *)&bstReceiptData, sizeof(GP211_RECEIPT_DATA) * dwReceiptDataCount);
+    return _PyString_FromArrayAndSize((char *)&bstReceiptData, sizeof(GP211_RECEIPT_DATA) * dwReceiptDataCount);
 }
 
 PyObject* pyGP211_install_for_load(PyObject* self, PyObject* args)
@@ -625,7 +640,7 @@ PyObject* pyGP211_get_extradition_token_signature_data(PyObject* self, PyObject*
     OPGP_ERROR_STATUS errorStatus = GP211_get_extradition_token_signature_data(pSecurityDomainAID, dwSecurityDomainAIDLength, pApplicationAID, dwApplicationAIDLength, baExtraditionTokenSignatureData, &dwExtraditionTokenSignatureDataLength);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)baExtraditionTokenSignatureData, dwExtraditionTokenSignatureDataLength);
+    return _PyString_FromArrayAndSize((const char *)baExtraditionTokenSignatureData, dwExtraditionTokenSignatureDataLength);
 }
 
 PyObject* pyGP211_get_load_token_signature_data(PyObject* self, PyObject* args)
@@ -644,7 +659,7 @@ PyObject* pyGP211_get_load_token_signature_data(PyObject* self, PyObject* args)
     OPGP_ERROR_STATUS errorStatus = GP211_get_load_token_signature_data(pExecutableLoadFileAID, dwExecutableLoadFileAIDLength, pSecurityDomainAID, dwSecurityDomainAIDLength, pLoadFileDataBlockHash, dwNonVolatileCodeSpaceLimit, dwVolatileDataSpaceLimit, dwNonVolatileDataSpaceLimit, baLoadTokenSignatureData, &dwLoadTokenSignatureDataLength);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)baLoadTokenSignatureData, dwLoadTokenSignatureDataLength);
+    return _PyString_FromArrayAndSize((const char *)baLoadTokenSignatureData, dwLoadTokenSignatureDataLength);
 }
 
 PyObject* pyGP211_get_install_token_signature_data(PyObject* self, PyObject* args)
@@ -665,7 +680,7 @@ PyObject* pyGP211_get_install_token_signature_data(PyObject* self, PyObject* arg
     OPGP_ERROR_STATUS errorStatus = GP211_get_install_token_signature_data(bP1, pExecutableLoadFileAID, dwExecutableLoadFileAIDLength, pExecutableModuleAID, dwExecutableModuleAIDLength, pApplicationAID, dwApplicationAIDLength, bApplicationPrivileges, dwVolatileDataSpaceLimit, dwNonVolatileDataSpaceLimit, pInstallParameters, dwInstallParametersLength, baInstallTokenSignatureData, &dwInstallTokenSignatureDataLength);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&baInstallTokenSignatureData, dwInstallTokenSignatureDataLength);
+    return _PyString_FromArrayAndSize((const char *)&baInstallTokenSignatureData, dwInstallTokenSignatureDataLength);
 }
 
 PyObject* pyGP211_calculate_load_token(PyObject* self, PyObject* args)
@@ -685,7 +700,7 @@ PyObject* pyGP211_calculate_load_token(PyObject* self, PyObject* args)
     OPGP_ERROR_STATUS errorStatus = GP211_calculate_load_token(pExecutableLoadFileAID, dwExecutableLoadFileAIDLength, pSecurityDomainAID, dwSecurityDomainAIDLength, pLoadFileDataBlockHash, dwNonVolatileCodeSpaceLimit, dwVolatileDataSpaceLimit, dwNonVolatileDataSpaceLimit, pLoadFileDataBlockHash, (OPGP_STRING)pPEMKeyFileName, pPassPhrase);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&baLoadToken, sizeof(baLoadToken));
+    return _PyString_FromArrayAndSize((const char *)&baLoadToken, sizeof(baLoadToken));
 }
 
 PyObject* pyGP211_calculate_install_token(PyObject* self, PyObject* args)
@@ -705,14 +720,14 @@ PyObject* pyGP211_calculate_install_token(PyObject* self, PyObject* args)
     char* pcPassPhrase = NULL;
     PyObject *pobjPassPhrase = PyTuple_GetItem(args, 7);
     if (pobjPassPhrase != Py_None) {
-        pcPassPhrase = (char *)PyUnicode_1BYTE_DATA(pobjPassPhrase);
+        pcPassPhrase = (char *)_PyArray_AsString(pobjPassPhrase);
     }
 
     BYTE baInstallToken[128] = { 0 };
     OPGP_ERROR_STATUS errorStatus = GP211_calculate_install_token(bP1, pExecutableLoadFileAID, dwExecutableLoadFileAIDLength, pExecutableModuleAID, dwExecutableModuleAIDLength, pApplicationAID, dwApplicationAIDLength, bApplicationPrivileges, dwVolatileDataSpaceLimit, dwNonVolatileDataSpaceLimit, pInstallParameters, dwInstallParametersLength, baInstallToken, (OPGP_STRING)pPEMKeyFileName, pcPassPhrase);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&baInstallToken, sizeof(baInstallToken));
+    return _PyString_FromArrayAndSize((const char *)&baInstallToken, sizeof(baInstallToken));
 }
 
 PyObject* pyGP211_calculate_load_file_data_block_hash(PyObject* self, PyObject* args)
@@ -727,7 +742,7 @@ PyObject* pyGP211_calculate_load_file_data_block_hash(PyObject* self, PyObject* 
         return PyLong_FromLong(-1);
     }
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&baHash, sizeof(baHash));
+    return _PyString_FromArrayAndSize((const char *)&baHash, sizeof(baHash));
 }
 
 PyObject* pyGP211_load(PyObject* self, PyObject* args)
@@ -749,7 +764,7 @@ PyObject* pyGP211_load(PyObject* self, PyObject* args)
         return PyLong_FromLong(0);
     }
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&stReceiptData, sizeof(GP211_RECEIPT_DATA));
+    return _PyString_FromArrayAndSize((const char *)&stReceiptData, sizeof(GP211_RECEIPT_DATA));
 }
 
 PyObject* pyGP211_load_from_buffer(PyObject* self, PyObject* args)
@@ -770,7 +785,7 @@ PyObject* pyGP211_load_from_buffer(PyObject* self, PyObject* args)
     if (0 == dwReceiptDataAvailable) {
         return PyLong_FromLong(0);
     }
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&stReceiptData, sizeof(GP211_RECEIPT_DATA));
+    return _PyString_FromArrayAndSize((const char *)&stReceiptData, sizeof(GP211_RECEIPT_DATA));
 }
 
 PyObject* pyGP211_install_for_install(PyObject* self, PyObject* args)
@@ -797,7 +812,7 @@ PyObject* pyGP211_install_for_install(PyObject* self, PyObject* args)
     if (0 == dwReceiptDataAvailable) {
         return PyLong_FromLong(0);
     }
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&stReceiptData, sizeof(GP211_RECEIPT_DATA));
+    return _PyString_FromArrayAndSize((const char *)&stReceiptData, sizeof(GP211_RECEIPT_DATA));
 }
 
 PyObject* pyGP211_install_for_make_selectable(PyObject* self, PyObject* args)
@@ -819,7 +834,7 @@ PyObject* pyGP211_install_for_make_selectable(PyObject* self, PyObject* args)
     if (0 == dwReceiptDataAvailable) {
         return PyLong_FromLong(0);
     }
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&stReceiptData, sizeof(GP211_RECEIPT_DATA));
+    return _PyString_FromArrayAndSize((const char *)&stReceiptData, sizeof(GP211_RECEIPT_DATA));
 }
 
 PyObject* pyGP211_install_for_install_and_make_selectable(PyObject* self, PyObject* args)
@@ -847,7 +862,7 @@ PyObject* pyGP211_install_for_install_and_make_selectable(PyObject* self, PyObje
         return PyLong_FromLong(0);
     }
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&stReceiptData, sizeof(GP211_RECEIPT_DATA));
+    return _PyString_FromArrayAndSize((const char *)&stReceiptData, sizeof(GP211_RECEIPT_DATA));
 }
 
 PyObject* pyGP211_install_for_personalization(PyObject* self, PyObject* args)
@@ -884,7 +899,7 @@ PyObject* pyGP211_install_for_extradition(PyObject* self, PyObject* args)
     if (0 == dwReceiptDataAvailable) {
         return PyLong_FromLong(0);
     }
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)&stReceiptData, sizeof(GP211_RECEIPT_DATA));
+    return _PyString_FromArrayAndSize((const char *)&stReceiptData, sizeof(GP211_RECEIPT_DATA));
 }
 
 PyObject* pyGP211_put_delegated_management_keys(PyObject* self, PyObject* args)
@@ -920,7 +935,7 @@ PyObject* pyGP211_send_APDU(PyObject* self, PyObject* args)
     OPGP_ERROR_STATUS errorStatus = GP211_send_APDU(stCardContext, stCardInfo, pstSecurityInfo, pCApdu, dwCApduLength, baRApdu, &dwRApduLength);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)baRApdu, dwRApduLength);
+    return _PyString_FromArrayAndSize((const char *)baRApdu, dwRApduLength);
 }
 
 PyObject* pyGP211_calculate_3des_DAP(PyObject* self, PyObject* args)
@@ -935,7 +950,7 @@ PyObject* pyGP211_calculate_3des_DAP(PyObject* self, PyObject* args)
     OPGP_ERROR_STATUS errorStatus = GP211_calculate_3des_DAP(pLoadFileDataBlockHash, pSecurityDomainAID, dwSecurityDomainAIDLength, pDAPCalculationKey, &stLoadFileDataBlockSignature);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (char *)&stLoadFileDataBlockSignature, sizeof(GP211_DAP_BLOCK));
+    return _PyString_FromArrayAndSize((char *)&stLoadFileDataBlockSignature, sizeof(GP211_DAP_BLOCK));
 }
 
 PyObject* pyGP211_calculate_rsa_DAP(PyObject* self, PyObject* args)
@@ -951,7 +966,7 @@ PyObject* pyGP211_calculate_rsa_DAP(PyObject* self, PyObject* args)
     OPGP_ERROR_STATUS errorStatus = GP211_calculate_rsa_DAP(pLoadFileDataBlockHash, pSecurityDomainAID, dwSecurityDomainAIDLength, (OPGP_STRING)pPEMKeyFileName, pPassPhrase, &stLoadFileDataBlockSignature);
     CHECK_GP_CALL_RESULT(errorStatus);
 
-    return PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (char *)&stLoadFileDataBlockSignature, sizeof(GP211_DAP_BLOCK));
+    return _PyString_FromArrayAndSize((char *)&stLoadFileDataBlockSignature, sizeof(GP211_DAP_BLOCK));
 }
 
 PyObject* pyGP211_validate_delete_receipt(PyObject* self, PyObject* args)
@@ -1010,18 +1025,18 @@ PyObject* pyGP211_validate_extradition_receipt(PyObject* self, PyObject* args)
     return NULL;
     //DWORD dwConfirmationCounter = (DWORD)PyLong_AsLong(PyTuple_GetItem(args, 0));
     //PyObject* pobjCardUniqueData = PyTuple_GetItem(args, 1);
-    //PBYTE pbCardUniqueData = (PBYTE)PyUnicode_1BYTE_DATA(pobjCardUniqueData);
+    //PBYTE pbCardUniqueData = (PBYTE)_PyArray_AsString(pobjCardUniqueData);
     //DWORD dwCardUniqueDataLength = (DWORD)PyUnicode_GetSize(pobjCardUniqueData);
-    //PBYTE pbReceiptKey = (PBYTE)PyUnicode_1BYTE_DATA(PyTuple_GetItem(args, 2));
-    //GP211_RECEIPT_DATA stReceiptData = *(GP211_RECEIPT_DATA *)PyUnicode_1BYTE_DATA(PyTuple_GetItem(args, 3));
+    //PBYTE pbReceiptKey = (PBYTE)_PyArray_AsString(PyTuple_GetItem(args, 2));
+    //GP211_RECEIPT_DATA stReceiptData = *(GP211_RECEIPT_DATA *)_PyArray_AsString(PyTuple_GetItem(args, 3));
     //PyObject* pobjOldSecurityDomainAID = PyTuple_GetItem(args, 4);
-    //PBYTE pbOldSecurityDomainAID = (PBYTE)PyUnicode_1BYTE_DATA(pobjOldSecurityDomainAID);
+    //PBYTE pbOldSecurityDomainAID = (PBYTE)_PyArray_AsString(pobjOldSecurityDomainAID);
     //DWORD dwOldSecurityDomainAID = (DWORD)PyUnicode_GetSize(pobjOldSecurityDomainAID);
     //PyObject* pobjNewSecurityDomainAID = PyTuple_GetItem(args, 5);
-    //PBYTE pbNewSecurityDomainAID = (PBYTE)PyUnicode_1BYTE_DATA(pobjNewSecurityDomainAID);
+    //PBYTE pbNewSecurityDomainAID = (PBYTE)_PyArray_AsString(pobjNewSecurityDomainAID);
     //DWORD dwNewSecurityDomainAID = (DWORD)PyUnicode_GetSize(pobjNewSecurityDomainAID);
     //PyObject* pobjApplicationOrExecutableLoadFileAID = PyTuple_GetItem(args, 6);
-    //PBYTE pbApplicationOrExecutableLoadFileAID = (PBYTE)PyUnicode_1BYTE_DATA(pobjApplicationOrExecutableLoadFileAID);
+    //PBYTE pbApplicationOrExecutableLoadFileAID = (PBYTE)_PyArray_AsString(pobjApplicationOrExecutableLoadFileAID);
     //DWORD dwApplicationOrExecutableLoadFileAIDLength = (DWORD)PyUnicode_GetSize(pobjApplicationOrExecutableLoadFileAID);
 
     //OPGP_ERROR_STATUS errorStatus = GP211_validate_extradition_receipt(dwConfirmationCounter, pbCardUniqueData, dwCardUniqueDataLength, pbReceiptKey, stReceiptData, pbOldSecurityDomainAID, dwOldSecurityDomainAID, pbNewSecurityDomainAID, dwNewSecurityDomainAID, pbApplicationOrExecutableLoadFileAID, dwApplicationOrExecutableLoadFileAIDLength);
@@ -1100,13 +1115,13 @@ PyObject* pyOPGP_read_executable_load_file_parameters(PyObject* self, PyObject* 
     CHECK_GP_CALL_RESULT(errorStatus);
 
     PyObject* pobjRet = PyDict_New();
-    PyDict_SetItem(pobjRet, PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, "loadFileSize", strlen("loadFileSize")), PyLong_FromLong(stLoadFileParameters.loadFileSize));
-    PyDict_SetItem(pobjRet, PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, "loadFileAID", strlen("loadFileAID")), PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)stLoadFileParameters.loadFileAID.AID, stLoadFileParameters.loadFileAID.AIDLength));
+    PyDict_SetItem(pobjRet, _PyString_FromArrayAndSize("loadFileSize", strlen("loadFileSize")), PyLong_FromLong(stLoadFileParameters.loadFileSize));
+    PyDict_SetItem(pobjRet, _PyString_FromArrayAndSize("loadFileAID", strlen("loadFileAID")), _PyString_FromArrayAndSize((const char *)stLoadFileParameters.loadFileAID.AID, stLoadFileParameters.loadFileAID.AIDLength));
     PyObject* pobjAppletAIDs = PyTuple_New(stLoadFileParameters.numAppletAIDs);
     for (BYTE b = 0; b < stLoadFileParameters.numAppletAIDs; ++b) {
-        PyTuple_SetItem(pobjAppletAIDs, b, PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, (const char *)stLoadFileParameters.appletAIDs[b].AID, stLoadFileParameters.appletAIDs[b].AIDLength));
+        PyTuple_SetItem(pobjAppletAIDs, b, _PyString_FromArrayAndSize((const char *)stLoadFileParameters.appletAIDs[b].AID, stLoadFileParameters.appletAIDs[b].AIDLength));
     }
-    PyDict_SetItem(pobjRet, PyUnicode_FromKindAndData(PyUnicode_1BYTE_KIND, "applets", strlen("applets")), pobjAppletAIDs);
+    PyDict_SetItem(pobjRet, _PyString_FromArrayAndSize("applets", strlen("applets")), pobjAppletAIDs);
     return pobjRet;
 }
 

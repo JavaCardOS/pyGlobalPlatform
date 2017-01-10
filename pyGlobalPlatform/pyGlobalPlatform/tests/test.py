@@ -1,8 +1,6 @@
 #!/usr/bin/python
 
-import globalplatformlib as gp
-if not gp:
-    from pyGlobalPlatform import globalplatformlib as gp
+from pyGlobalPlatform import globalplatformlib as gp
 
 def INFO(info):
     print("INFO " + info)
