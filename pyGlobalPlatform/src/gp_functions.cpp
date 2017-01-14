@@ -65,26 +65,45 @@
     \
 
 #ifdef UNICODE
-#define ARGS_GetTCHARArray(i, n) \
-    PyObject* pobj##n = PyTuple_GetItem(args, i); \
-    TCHAR *p##n = NULL; \
-    DWORD dw##n##Length = 0; \
-    if (pobj##n != Py_None) { \
-        p##n = (TCHAR *)PyUnicode_AsUnicode(pobj##n); \
-        dw##n##Length = (DWORD)PyUnicode_GetSize(pobj##n); \
-    }\
-    \
-
+    #if (PY_MAJOR_VERSION == 2)
+        #define ARGS_GetTCHARArray(i, n) \
+            PyObject* pobj##n = PyTuple_GetItem(args, i); \
+            TCHAR *p##n = NULL; \
+            DWORD dw##n##Length = 0; \
+            if (pobj##n != Py_None) { \
+                p##n = (TCHAR *)PyUnicode_AsUnicode(pobj##n); \
+                if (p##n == NULL) {\
+                    pobj##n = PyUnicode_FromString(PyString_AsString(pobj##n));\
+                    p##n = (TCHAR *) PyUnicode_AsUnicode(pobj##n); \
+                    dw##n##Length = (DWORD) PyUnicode_GetSize(pobj##n); \
+                } else { \
+                    dw##n##Length = (DWORD)PyUnicode_GetSize(pobj##n); \
+                } \
+            }\
+            \
+            
+    #else
+        #define ARGS_GetTCHARArray(i, n) \
+            PyObject* pobj##n = PyTuple_GetItem(args, i); \
+            TCHAR *p##n = NULL; \
+            DWORD dw##n##Length = 0; \
+            if (pobj##n != Py_None) { \
+                p##n = (TCHAR *)PyUnicode_AsUnicode(pobj##n); \
+                dw##n##Length = (DWORD)PyUnicode_GetSize(pobj##n); \
+            }\
+            \
+            
+    #endif
 #else
-#define ARGS_GetTCHARArray(i, n) \
-    PyObject* pobj##n = PyTuple_GetItem(args, i); \
-    TCHAR *p##n = NULL; \
-    DWORD dw##n##Length = 0; \
-    if (pobj##n != Py_None) { \
-        p##n = PyBytes_AsString(PyUnicode_AsASCIIString(pobj##n)); \
-        dw##n##Length = (DWORD)PyUnicode_GetSize(pobj##n); \
-    }\
-    \
+    #define ARGS_GetTCHARArray(i, n) \
+        PyObject* pobj##n = PyTuple_GetItem(args, i); \
+        TCHAR *p##n = NULL; \
+        DWORD dw##n##Length = 0; \
+        if (pobj##n != Py_None) { \
+            p##n = PyBytes_AsString(PyUnicode_AsASCIIString(pobj##n)); \
+            dw##n##Length = (DWORD)PyUnicode_GetSize(pobj##n); \
+        }\
+        \
 
 #endif
 
@@ -139,8 +158,8 @@ PyObject* establishContext(PyObject* self, PyObject* args)
     memset(&stCardContext.connectionFunctions, 0x00, sizeof(stCardContext.connectionFunctions));
     stCardContext.libraryHandle = NULL;
     stCardContext.librarySpecific = NULL;
-    _tcsncpy_s(stCardContext.libraryName, ARRAY_SIZE(stCardContext.libraryName), _T("gppcscconnectionplugin"), _tcslen(_T("gppcscconnectionplugin")));
-    _tcsncpy_s(stCardContext.libraryVersion, ARRAY_SIZE(stCardContext.libraryVersion), _T("1"), _tcslen( _T("1")));
+    _tcsncpy(stCardContext.libraryName, _T("gppcscconnectionplugin"), _tcslen(_T("gppcscconnectionplugin")));
+    _tcsncpy(stCardContext.libraryVersion, _T("1"), _tcslen( _T("1")));
     OPGP_ERROR_STATUS errorStatus = OPGP_establish_context(&stCardContext);
     CHECK_GP_CALL_RESULT(errorStatus);
 
@@ -202,6 +221,7 @@ PyObject* connectCard(PyObject* self, PyObject* args)
 
     ARGS_GetCardContext(0);
     ARGS_GetTCHARArray(1, ReaderName);
+
     long lProtocol = PyLong_AsLong(PyTuple_GetItem(args, 2));
     if ((!(OPGP_CARD_PROTOCOL_T0 & lProtocol)) && (!(OPGP_CARD_PROTOCOL_T1 & lProtocol))) {
         PyErr_SetFromErrno(PyExc_ValueError);
