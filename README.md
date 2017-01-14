@@ -45,7 +45,7 @@ See [GlobalPlatform Library API reference](http://globalplatform.sourceforge.net
 Provide cmake script, this project can be compiled for use on both windows and linux platform. For more details, please visit our forum [JavacardOS pyGlobalPlatform Discussions](http://javacardos.com/javacardforum/viewforum.php?f=41?ws=github&prj=pyGP).
 
 # Developer's Guide
-Introduce the usage of library APIs. Visit: [pyGlobalPlatform Developer's Guide]http://javacardos.com/javacardforum/viewforum.php?f=41?ws=github&prj=pyGP)
+Introduce the usage of library APIs. Visit: [pyGlobalPlatform Developer's Guide](http://javacardos.com/javacardforum/viewforum.php?f=41?ws=github&prj=pyGP)
 # Discussions
 If you have any questions, please visit: [JavacardOS pyGlobalPlatform Discussions](http://javacardos.com/javacardforum/viewforum.php?f=41?ws=github&prj=pyGP)
 
