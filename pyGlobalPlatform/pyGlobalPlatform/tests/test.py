@@ -1,5 +1,11 @@
 #!/usr/bin/python
 
+'''
+    This script is for pyGlobalPlatform tests;
+    Website: https://www.javacardos.com
+    URL for discussion: https://www.javacardos.com/javacardforum/viewforum.php?f=41
+'''
+
 from pyGlobalPlatform import globalplatformlib as gp
 
 def INFO(info):
@@ -99,15 +105,25 @@ if __name__ == "__main__":
     packageAID = '\x11\x22\x33\x44\x55'
     moduleAID = '\x11\x22\x33\x44\x55\x00'
     appletAID = '\x11\x22\x33\x44\x55\x00'
+
     INFO("Delete Applet:")
     try:
         gp.deleteApplication(c, cc, sc, [packageAID]);
     except:
         pass
-    
     INFO("Load CAP:")
     gp.installForLoad(c, cc, sc, packageAID, None, None, None, 0, 0, 0)
     gp.load(c, cc, sc, None, 'javacardos.cap')
+
+        INFO("Delete Applet:")
+    try:
+        gp.deleteApplication(c, cc, sc, [packageAID]);
+    except:
+        pass
+    INFO("Load CAP:")
+    gp.installForLoad(c, cc, sc, packageAID, None, None, None, 0, 0, 0)
+    gp.load(c, cc, sc, None, u'javacardos.cap')
+
     INFO("Install Applet:")
     gp.installForInstallAndMakeSelectable(c, cc, sc, packageAID, moduleAID, appletAID, 0x00, 0, 0, None, None)
     INFO("Process Applet:")
