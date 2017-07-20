@@ -150,7 +150,7 @@ setup(
     ext_modules = [
         Extension(
             'pyGlobalPlatform.pyGlobalPlatform'
-            , ['./src/main.cpp', './src/gp_functions.cpp']
+            , ['src/main.cpp', 'src/gp_functions.cpp']
             , include_dirs = include_dirs
             , define_macros = define_macros
             , libraries = ['globalplatform', ]

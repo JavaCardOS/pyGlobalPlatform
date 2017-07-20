@@ -1,0 +1,28 @@
+Metadata-Version: 1.1
+Name: pyGlobalPlatform
+Version: 1.4.16
+Summary: A free opensource globalplatform library for java card and smartcard. https://www.javacardos.com
+Home-page: http://www.javacardos.com/
+Author: www.JavaCardOS.com
+Author-email: javacardos@gmail.com
+License: MIT
+Description: A free opensource globalplatform library for java card and smartcard. 
+        pyGlobalPlatform is an open source python globalplatform client library. It depends on the GlobalPlatform project. Using this library, you can use all features of GlobalPlatform project via Python programming language. 
+        website: https://www.javacardos.com
+        
+Keywords: smartcard javacard globalplatform
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.3
+Classifier: Programming Language :: Python :: 2.4
+Classifier: Programming Language :: Python :: 2.5
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
